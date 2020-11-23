@@ -116,7 +116,19 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\utils\Led.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="src\utils\Runnable.h" />
     <ClInclude Include="__vm\.client_jardin_v1.vsarduino.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\utils\Led.cpp">
+      <SubType>
+      </SubType>
+    </ClCompile>
+    <ClCompile Include="src\utils\Runnable.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,12 +4,27 @@
  Author:	Toni
 */
 
-// the setup function runs once when you press reset or power the board
-void setup() {
+#include "src/utils/Runnable.h"
+#include <src/utils/Led.h>
 
+Runnable* Runnable::headRunnable = NULL;
+
+Led debugLed = Led(LED_BUILTIN);
+
+unsigned long delayMs = 0L;
+
+void setup()
+{
+	Runnable::setupAll();
 }
 
-// the loop function runs over and over again until power down or reset
-void loop() {
-  
+void loop()
+{
+	Runnable::loopAll();
+
+	if (millis() - delayMs > 10000L)
+	{
+		debugLed.blinkErrorCode(2);
+		delayMs = millis();
+	}
 }

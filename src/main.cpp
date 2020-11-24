@@ -8,27 +8,22 @@
 #include "utils/Runnable.h"
 #include "utils/DebugLed.h"
 
+#include "sensors/LuxSensor.h"
+
 Runnable* Runnable::headRunnable = NULL;
 
 DebugLed led = DebugLed(LED_BUILTIN_TX);
 
+LuxSensor luxSensor = LuxSensor(led);
+
 void setup()
 {
-    pinMode(LED_BUILTIN_RX, INPUT);
-
+    pinMode(LED_BUILTIN_RX, INPUT); // shut down rx led
+    Serial.begin(115200);
     Runnable::setupAll();
 }
-
-unsigned long blinkInterval = 5000L;
 
 void loop()
 {
     Runnable::loopAll();
-
-    if (millis() - blinkInterval > 10000L)
-    {
-        led.blinkErrorCode(5);
-        blinkInterval = millis();
-    }
-    
 }

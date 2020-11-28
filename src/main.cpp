@@ -9,12 +9,18 @@
 #include "utils/DebugLed.h"
 
 #include "sensors/LuxSensor.h"
+#include "transmitter/WirelessManager.h"
 
-Runnable* Runnable::headRunnable = NULL;
+#define CE_PIN 7
+#define CSN_PIN 8
+
+Runnable *Runnable::headRunnable = NULL;
 
 DebugLed led = DebugLed(LED_BUILTIN_TX);
 
 LuxSensor luxSensor = LuxSensor(led);
+
+WirelessManager rfManager = WirelessManager(CE_PIN, CSN_PIN);
 
 void setup()
 {

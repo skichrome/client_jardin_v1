@@ -15,14 +15,14 @@ private:
         NOT_FOUND,
         WORKING,
         DONE
-    } state;
+    } state = NOT_FOUND;
 
     DebugLed &led;
     Adafruit_VEML7700 sensor;
 
     long lux = -1L;
 
-    unsigned long measuringDelayMs;
+    unsigned long measuringDelayMs = 0L;
     const unsigned long MEASURING_DELAY_MS = 2000L;
 
 protected:

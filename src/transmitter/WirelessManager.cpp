@@ -21,6 +21,7 @@ void WirelessManager::loop()
     case WirelessManager::WAITING_DATA_TO_SEND:
         if (rfMessage.lux != -1L)
         {
+            radio.stopListening();
             state = WirelessManager::SENDING;
         }
         break;
@@ -29,9 +30,25 @@ void WirelessManager::loop()
         {
             Serial.println("Sending values failed...");
         }
-        
+        radio.startListening();
+        state = WirelessManager::WAITING_RESPONSE;
+        timeoutMs = millis();
+
         break;
     case WirelessManager::WAITING_RESPONSE:
+
+        if (millis() - timeoutMs > TIMEOUT_MS && !radio.available())
+            state = WirelessManager::WAITING_DATA_TO_SEND;
+
+        if (radio.available())
+        {
+            radio.read(&response, sizeof(response));
+            Serial.print("Response: ID: ");
+            Serial.println(response.id);
+            Serial.print("Response: value: ");
+            Serial.println(response.lux);
+        }
+
         break;
 
     default:

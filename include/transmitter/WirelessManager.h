@@ -2,9 +2,8 @@
 #define _WIRELESS_TRANSMITTER_H
 
 #include "utils/Runnable.h"
-#include "utils/DebugLed.h"
 
-#include "RF24.h"
+#include <RF24.h>
 
 class WirelessManager : public Runnable
 {
@@ -15,7 +14,7 @@ private:
         WAITING_DATA_TO_SEND,
         SENDING,
         WAITING_RESPONSE
-    } state;
+    } state = NOT_FOUND;
 
     struct dataStruct
     {
@@ -23,8 +22,13 @@ private:
         long lux = -1;
     } rfMessage;
 
+    dataStruct response;
+
     byte addresses[2][6] = {"trsmt", "reciv"};
     RF24 radio;
+
+    unsigned long timeoutMs = 0L;
+    const unsigned long TIMEOUT_MS = 5000L;
 
 protected:
     virtual void setup();

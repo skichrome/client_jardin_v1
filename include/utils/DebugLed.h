@@ -13,7 +13,7 @@ private:
     {
         ENABLED = LOW,
         DISABLED = HIGH
-    } ledState;
+    } ledState = DISABLED;
 
     enum CycleState
     {
@@ -21,7 +21,7 @@ private:
         POWER_ON,
         POWER_OFF,
         PAUSING
-    } cycleState;
+    } cycleState = WAITING;
 
     unsigned long cycleCount = 0;
 

@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <ArduinoLowPower.h>
 
 /*
  * Auto indent in VSCode on Linux: ctrl + shift + i
@@ -10,9 +9,6 @@
 #include "utils/DebugLed.h"
 
 #include "sensors/LuxSensor.h"
-
-#define CE_PIN 7
-#define CSN_PIN 8
 
 Runnable *Runnable::headRunnable = NULL;
 

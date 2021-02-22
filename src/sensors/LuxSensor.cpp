@@ -25,24 +25,20 @@ void LuxSensor::loop()
         {
             measuringDelayMs = millis();
             lux = sensor.readLux();
-            if (lux != -1L)
-            {
-                state = LuxSensor::DONE;
-                break;
-            }
-            led.blinkErrorCode(11);
+            
+            Serial.print("Lux sensor measure: ");
+            Serial.println(lux);
         }
         break;
     case LuxSensor::DONE:
-        if (millis() - measuringDelayMs > MEASURING_DELAY_MS)
-        {
-            Serial.print("Lux sensor measure: ");
-            Serial.println(lux);
-            measuringDelayMs = millis();
-        }
-
         break;
     default:
         break;
     }
+}
+
+long LuxSensor::getLuxMeasureAndStop()
+{
+    state = LuxSensor::DONE;
+    return lux;
 }

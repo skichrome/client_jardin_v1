@@ -19,7 +19,7 @@ DebugLed led = DebugLed(LED_BUILTIN);
 
 Command sensorsSwitch = Command(SENSORS_COMMAND_SW);
 
-//LuxSensor luxSensor = LuxSensor(led);
+LuxSensor luxSensor = LuxSensor(led);
 
 void setup()
 {
@@ -27,7 +27,7 @@ void setup()
     Runnable::setupAll();
 }
 
-unsigned long startTimeMs = 5000L;
+unsigned long startTimeMs = 10000L;
 unsigned long count = 0L;
 
 void loop()

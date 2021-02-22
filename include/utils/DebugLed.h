@@ -11,8 +11,8 @@ private:
 
     enum LedState
     {
-        ENABLED = LOW,
-        DISABLED = HIGH
+        ENABLED = HIGH,
+        DISABLED = LOW
     } ledState = DISABLED;
 
     enum CycleState

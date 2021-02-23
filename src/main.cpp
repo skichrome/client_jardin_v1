@@ -1,5 +1,7 @@
 #include <Arduino.h>
 
+#include <ArduinoLowPower.h>
+
 /*
  * Auto indent in VSCode on Linux: ctrl + shift + i
  * Auto indent in VSCode on Windows: shift + alt + F ?

@@ -37,7 +37,7 @@ void LuxSensor::loop()
     }
 }
 
-long LuxSensor::getLuxMeasureAndStop()
+uint8_t LuxSensor::getLuxMeasureAndStop()
 {
     state = LuxSensor::DONE;
     return lux;

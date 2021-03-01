@@ -34,7 +34,7 @@ public:
                                 sensor(Adafruit_VEML7700())
     {
     }
-    long getLuxMeasureAndStop();
+    uint8_t getLuxMeasureAndStop();
 };
 
 #endif

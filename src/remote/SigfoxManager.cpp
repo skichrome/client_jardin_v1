@@ -10,7 +10,7 @@ void SigfoxManager::setup()
 
 void SigfoxManager::loop()
 {
-    if (isDataReady)
+    if (data.altValue && data.baroValue && data.currentTimestamp && data.luxValue && data.soilHumValue && data.temperatureValue)
     {
         // Todo : convert data to hex, send data and wait callback
         SigFox.begin();
@@ -19,21 +19,26 @@ void SigfoxManager::loop()
         SigFox.endPacket(true);
 
         handleSigfoxResponseCallback();
-        isDataReady = false;
+        // isDataReady = false;
+
+        data.altValue = NULL;
+        data.baroValue = NULL;
+        data.currentTimestamp = NULL;
+        data.luxValue = NULL;
+        data.soilHumValue = NULL;
+        data.temperatureValue = NULL;
     }
 }
 
-void SigfoxManager::setDataToSend(uint32_t timestamp, uint8_t luxValue, uint8_t altValue, uint8_t baroValue, uint8_t soilHumValue, uint8_t temperatureValue)
-{
-    data.currentTimestamp = timestamp;
-    data.luxValue = luxValue;
-    data.altValue = altValue;
-    data.baroValue = baroValue;
-    data.soilHumValue = soilHumValue;
-    data.temperatureValue = temperatureValue;
+// void SigfoxManager::setDataToSend(SensorsData &mData)
+// {
+//     data = mData;
 
-    isDataReady = true;
-}
+//     if (data.altValue && data.baroValue && data.currentTimestamp && data.luxValue && data.soilHumValue && data.temperatureValue)
+//         isDataReady = true;
+//     else
+//         isDataReady = false;
+// }
 
 void SigfoxManager::handleSigfoxResponseCallback()
 {

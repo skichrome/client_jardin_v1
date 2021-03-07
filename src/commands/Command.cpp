@@ -3,7 +3,7 @@
 void Command::setup()
 {
     pinMode(pin, OUTPUT);
-    currentState = Command::SWITCHED_OFF;
+    currentState = Command::SWITCHED_ON;
     updatedState = currentState;
     digitalWrite(pin, currentState);
 }

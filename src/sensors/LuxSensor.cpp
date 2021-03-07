@@ -18,27 +18,31 @@ void LuxSensor::setup()
 
 void LuxSensor::loop()
 {
-    switch (state)
+    if (millis() - measuringDelayMs > DELAY)
     {
-    case LuxSensor::WORKING:
-        if (millis() - measuringDelayMs > MEASURING_DELAY_MS)
+        switch (state)
         {
-            measuringDelayMs = millis();
-            lux = sensor.readLux();
-            
+        case LuxSensor::WORKING:
+            if (lux == -1L)
+                lux = sensor.readLux();
+
             Serial.print("Lux sensor measure: ");
             Serial.println(lux);
+
+            if (lux != -1L)
+                state = LuxSensor::DONE;
+            break;
+        case LuxSensor::DONE:
+            break;
+        default:
+            break;
         }
-        break;
-    case LuxSensor::DONE:
-        break;
-    default:
-        break;
+
+        measuringDelayMs = millis();
     }
 }
 
-uint8_t LuxSensor::getLuxMeasureAndStop()
+void LuxSensor::updateSensorData(SensorsData &mData)
 {
-    state = LuxSensor::DONE;
-    return lux;
+    mData.luxValue = lux;
 }

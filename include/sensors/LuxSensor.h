@@ -14,7 +14,8 @@ private:
     enum State
     {
         NOT_FOUND,
-        WORKING,
+        READY,
+        MEASURING,
         DONE
     } state = NOT_FOUND;
 
@@ -26,6 +27,8 @@ private:
     unsigned long measuringDelayMs = 0L;
     const unsigned long DELAY = 2000L;
 
+    void configureLuxSensor();
+
 protected:
     virtual void setup();
     virtual void loop();
@@ -33,7 +36,8 @@ protected:
 public:
     LuxSensor(DebugLed &mLed) : led(mLed) {}
 
-    void updateSensorData(SensorsData &mData);
+    boolean isDataReady();
+    void updateSensorData(SensorsData *mData);
 };
 
 #endif

@@ -9,21 +9,33 @@
 class SigfoxManager : Runnable
 {
 private:
-    SensorsData &data;
+    SensorsData *data;
+
+    enum State
+    {
+        WAITING_DATA,
+        SENDING,
+        WAITING_CALLBACK,
+        DONE,
+        CALLBACK_ERROR
+    } state;
 
     void handleSigfoxResponseCallback();
+
+    /**
+     * Todo : Update local timestamp and config
+     */
+    long onConfigurationReceived();
 
 protected:
     virtual void setup();
     virtual void loop();
 
 public:
-    SigfoxManager(SensorsData &mData): data(mData) {}
+    SigfoxManager(SensorsData *mData);
 
-    /**
-     * Todo : Update local timestamp and config
-     */
-    long onConfigurationReceived();
+    boolean isDataSent();
+    boolean isDataSentAndCallbackHandled();
 };
 
 #endif

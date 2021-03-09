@@ -1,9 +1,9 @@
-#ifndef _COMMAND_H
-#define _COMMAND_H
+#ifndef _SWITCH_COMMAND_H
+#define _SWITCH_COMMAND_H
 
 #include "utils/Runnable.h"
 
-class Command : Runnable
+class SwitchCommand : Runnable
 {
 private:
     byte pin;
@@ -20,7 +20,7 @@ protected:
     virtual void loop();
 
 public:
-    Command(byte attachTo) : pin(attachTo) {}
+    SwitchCommand(byte attachTo) : pin(attachTo) {}
 
     void switchState(boolean newState);
 };

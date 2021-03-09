@@ -11,6 +11,7 @@ class BaroSensor : Runnable
 private:
     enum State
     {
+        NOT_FOUND,
         READY,
         MEASURING,
         DONE
@@ -24,13 +25,17 @@ private:
     float altm = -1.0;
     float temperature = -1.0;
 
+    void configureBaroSensor();
+
 protected:
     virtual void setup();
     virtual void loop();
 
 public:
     BaroSensor() {}
-    void updateSensorsData(SensorsData &mData);
+    
+    boolean isDataReady();
+    void updateSensorsData(SensorsData *mData);
 };
 
 #endif

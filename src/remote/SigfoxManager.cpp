@@ -1,8 +1,8 @@
 #include "remote/SigfoxManager.h"
 
-SigfoxManager::SigfoxManager(SensorsData *mData) : data(NULL)
+SigfoxManager::SigfoxManager(SensorsData *mData) : sensorsData(NULL)
 {
-    data = mData;
+    sensorsData = mData;
 }
 
 void SigfoxManager::setup()
@@ -36,7 +36,7 @@ void SigfoxManager::loop()
     switch (state)
     {
     case SigfoxManager::WAITING_DATA:
-        if (data->altValue && data->baroValue && data->currentTimestamp && data->luxValue && data->soilHumValue && data->temperatureValue)
+        if (sensorsData->altValue && sensorsData->baroValue && sensorsData->currentTimestamp && sensorsData->luxValue && sensorsData->soilHumValue && sensorsData->temperatureValue)
             state = SigfoxManager::SENDING;
         break;
 
@@ -44,7 +44,7 @@ void SigfoxManager::loop()
         // Todo : convert data to hex, send data and wait callback
         SigFox.begin();
         SigFox.beginPacket();
-        SigFox.write((uint8_t *)data, sizeof(data));
+        SigFox.write((uint8_t *)sensorsData, sizeof(*sensorsData));
         SigFox.endPacket(true);
         state = SigfoxManager::WAITING_CALLBACK;
         break;
@@ -73,11 +73,34 @@ void SigfoxManager::handleSigfoxResponseCallback()
 {
     if (SigFox.parsePacket())
     {
+        // Position in callback response
+        int counter = 0;
+        // Store callback response, length is always 8
+        uint8_t response[8];
+
+        // Populate response array while data available
         while (SigFox.available())
         {
-            Serial.print("0x");
-            Serial.println(SigFox.read(), HEX);
+            uint8_t inputByte = SigFox.read();
+            response[counter++] = inputByte;
         }
+
+        Serial.print("Array out: ");
+
+        for (unsigned int i = 0; i < sizeof(response); i++)
+        {
+            Serial.print("0x");
+            Serial.println(response[i], HEX);
+        }
+
+        callbackData = (CallbackData *)response;
+
+        Serial.print("Struct timestamp : ");
+        Serial.println(callbackData->timestamp);
+        Serial.print("Struct startTime : ");
+        Serial.println(callbackData->sprinkleStartTime);
+        Serial.print("Struct duration : ");
+        Serial.println(callbackData->sprinleDuration);
     }
     else
     {

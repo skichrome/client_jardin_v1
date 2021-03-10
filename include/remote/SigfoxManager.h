@@ -5,11 +5,13 @@
 
 #include "utils/Runnable.h"
 #include "model/SensorsData.h"
+#include "model/CallbackData.h"
 
 class SigfoxManager : Runnable
 {
 private:
-    SensorsData *data;
+    SensorsData *sensorsData;
+    CallbackData *callbackData;
 
     enum State
     {

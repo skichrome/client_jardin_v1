@@ -12,6 +12,10 @@ void SigfoxManager::setup()
     SigFox.debug();
     SigFox.end();
 
+    // SD Card configuration
+    if (!SD.begin(4))
+        Serial.println("Can't configure SD Card lib in SigFoxManager");
+
     state = SigfoxManager::WAITING_DATA;
 
     Serial.println("Successfully configured SigfoxManager");
@@ -85,14 +89,6 @@ void SigfoxManager::handleSigfoxResponseCallback()
             response[counter++] = inputByte;
         }
 
-        Serial.print("Array out: ");
-
-        for (unsigned int i = 0; i < sizeof(response); i++)
-        {
-            Serial.print("0x");
-            Serial.println(response[i], HEX);
-        }
-
         callbackData = (CallbackData *)response;
 
         Serial.print("Struct timestamp : ");
@@ -106,5 +102,28 @@ void SigfoxManager::handleSigfoxResponseCallback()
     {
         Serial.println("No response from Sigfox backend");
         state = SigfoxManager::CALLBACK_ERROR;
+    }
+}
+
+void SigfoxManager::saveCallbackToFile()
+{
+    File callbackFile = SD.open("configuration.txt", FILE_WRITE);
+    if (callbackFile)
+    {
+        callbackFile.println(callbackData->sprinkleStartTime);
+        callbackFile.println(callbackData->sprinleDuration);
+
+        callbackFile.close();
+    }
+
+    File readTest = SD.open("configuration.txt", FILE_READ);
+
+    if (readTest)
+    {
+        while (readTest.available())
+        {
+            Serial.print("Data read : ");
+            Serial.println(readTest.read());
+        }
     }
 }

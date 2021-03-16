@@ -2,6 +2,7 @@
 #define _SIGFOXMANAGER_H
 
 #include <SigFox.h>
+#include <SD.h>
 
 #include "utils/Runnable.h"
 #include "model/SensorsData.h"
@@ -23,6 +24,7 @@ private:
     } state;
 
     void handleSigfoxResponseCallback();
+    void saveCallbackToFile();
 
     /**
      * Todo : Update local timestamp and config

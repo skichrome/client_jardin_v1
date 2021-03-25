@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+#include <RTCZero.h>
 #include <ArduinoLowPower.h>
 
 /*
@@ -23,6 +24,8 @@
 
 Runnable *Runnable::headRunnable = NULL;
 
+RTCZero rtc;
+
 DebugLed led = DebugLed(LED_BUILTIN);
 
 SwitchCommand sensorsSwitch = SwitchCommand(SENSORS_COMMAND_SW);
@@ -32,7 +35,7 @@ SensorsData dataToSend = SensorsData();
 
 LuxSensor luxSensor = LuxSensor(led);
 BaroSensor baroSensor = BaroSensor();
-SigfoxManager sfm = SigfoxManager(&dataToSend);
+SigfoxManager sfm = SigfoxManager(&dataToSend, &rtc);
 
 unsigned long startTimeMs = 0L;
 unsigned int counter = 0;
@@ -44,6 +47,8 @@ void setup()
     while (!Serial)
     {
     }
+
+    rtc.begin();
 
     startTimeMs = millis();
     counter = 0;
@@ -69,7 +74,10 @@ void loop()
 
             // Todo : Query Soil moisture sensor and set timestamp
             dataToSend.soilHumValue = 1;
-            dataToSend.currentTimestamp = millis();
+            dataToSend.currentTimestamp = rtc.getEpoch();
+
+            Serial.print("Timestamp to send: ");
+            Serial.println(dataToSend.currentTimestamp);
 
             // Measures are done, reset sensor switch
             sensorsSwitch.switchState(false);

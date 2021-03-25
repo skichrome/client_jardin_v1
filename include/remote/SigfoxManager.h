@@ -1,6 +1,7 @@
 #ifndef _SIGFOXMANAGER_H
 #define _SIGFOXMANAGER_H
 
+#include <RTCZero.h>
 #include <SigFox.h>
 #include <SD.h>
 
@@ -13,6 +14,7 @@ class SigfoxManager : Runnable
 private:
     SensorsData *sensorsData;
     CallbackData *callbackData;
+    RTCZero *rtc;
 
     enum State
     {
@@ -26,9 +28,6 @@ private:
     void handleSigfoxResponseCallback();
     void saveCallbackToFile();
 
-    /**
-     * Todo : Update local timestamp and config
-     */
     long onConfigurationReceived();
 
 protected:
@@ -36,7 +35,7 @@ protected:
     virtual void loop();
 
 public:
-    SigfoxManager(SensorsData *mData);
+    SigfoxManager(SensorsData *mData, RTCZero *mRtc);
 
     boolean isDataSent();
     boolean isDataSentAndCallbackHandled();

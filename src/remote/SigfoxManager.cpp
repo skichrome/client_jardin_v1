@@ -1,8 +1,9 @@
 #include "remote/SigfoxManager.h"
 
-SigfoxManager::SigfoxManager(SensorsData *mData) : sensorsData(NULL)
+SigfoxManager::SigfoxManager(SensorsData *mData, RTCZero *mRtc) : sensorsData(NULL), rtc(NULL)
 {
     sensorsData = mData;
+    rtc = mRtc;
 }
 
 void SigfoxManager::setup()
@@ -97,6 +98,16 @@ void SigfoxManager::handleSigfoxResponseCallback()
         Serial.println(callbackData->sprinkleStartTime);
         Serial.print("Struct duration : ");
         Serial.println(callbackData->sprinleDuration);
+
+        int gap = abs(rtc->getEpoch() - callbackData->timestamp);
+        if (gap > 20)
+        {
+            Serial.print("Timestamp correction performed. Gap : ");
+            Serial.println(gap);
+            rtc->setEpoch(callbackData->timestamp);
+        }
+
+        saveCallbackToFile();
     }
     else
     {
@@ -107,16 +118,23 @@ void SigfoxManager::handleSigfoxResponseCallback()
 
 void SigfoxManager::saveCallbackToFile()
 {
-    File callbackFile = SD.open("configuration.txt", FILE_WRITE);
+    // Remove old config file before saving content
+    if (SD.exists("config.txt"))
+        SD.remove("config.txt");
+
+    File callbackFile = SD.open("config.txt", FILE_WRITE);
     if (callbackFile)
     {
+        callbackFile.println(callbackData->timestamp);
         callbackFile.println(callbackData->sprinkleStartTime);
         callbackFile.println(callbackData->sprinleDuration);
 
         callbackFile.close();
     }
+    else
+        Serial.println("can't open config.txt to write callback data");
 
-    File readTest = SD.open("configuration.txt", FILE_READ);
+    File readTest = SD.open("config.txt", FILE_READ);
 
     if (readTest)
     {
@@ -125,5 +143,8 @@ void SigfoxManager::saveCallbackToFile()
             Serial.print("Data read : ");
             Serial.println(readTest.read());
         }
+        readTest.close();
     }
+    else
+        Serial.println("can't open config.txt for readTest");
 }

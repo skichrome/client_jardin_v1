@@ -2,10 +2,12 @@
 #define _RELAY_COMMAND_H
 
 #include "utils/Runnable.h"
+#include "utils/Logger.h"
 
 class RelayCommand : Runnable
 {
 private:
+    Logger *logger;
     byte pinOn, pinOff;
 
     enum State
@@ -26,7 +28,7 @@ protected:
     virtual void loop();
 
 public:
-    RelayCommand(byte attachToOn, byte attachToOff);
+    RelayCommand(Logger *mLogger, byte attachToOn, byte attachToOff);
     void switchRelay();
 };
 

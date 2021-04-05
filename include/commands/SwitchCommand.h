@@ -2,10 +2,12 @@
 #define _SWITCH_COMMAND_H
 
 #include "utils/Runnable.h"
+#include "utils/Logger.h"
 
 class SwitchCommand : Runnable
 {
 private:
+    Logger *logger;
     byte pin;
     enum State
     {
@@ -20,7 +22,7 @@ protected:
     virtual void loop();
 
 public:
-    SwitchCommand(byte attachTo) : pin(attachTo) {}
+    SwitchCommand(Logger *mLogger, byte attachTo);
 
     void switchState(boolean newState);
 };

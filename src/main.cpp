@@ -9,6 +9,7 @@
 */
 
 #include "utils/Runnable.h"
+#include "utils/Logger.h"
 #include "utils/DebugLed.h"
 
 #include "sensors/LuxSensor.h"
@@ -27,41 +28,44 @@ Runnable *Runnable::headRunnable = NULL;
 RTCZero rtc;
 
 DebugLed led = DebugLed(LED_BUILTIN);
-
-SwitchCommand sensorsSwitch = SwitchCommand(SENSORS_COMMAND_SW);
-RelayCommand sprinkle = RelayCommand(RELAY_ON_PIN, RELAY_OFF_PIN);
+Logger logger = Logger(&rtc, &led);
 
 SensorsData dataToSend = SensorsData();
 
-LuxSensor luxSensor = LuxSensor(led);
-BaroSensor baroSensor = BaroSensor();
-SigfoxManager sfm = SigfoxManager(&dataToSend, &rtc);
+SigfoxManager sfm = SigfoxManager(&logger, &dataToSend, &rtc);
+
+LuxSensor luxSensor = LuxSensor(&logger);
+BaroSensor baroSensor = BaroSensor(&logger);
+
+SwitchCommand sensorsSwitch = SwitchCommand(&logger, SENSORS_COMMAND_SW);
+RelayCommand sprinkle = RelayCommand(&logger, RELAY_ON_PIN, RELAY_OFF_PIN);
 
 unsigned long startTimeMs = 0L;
 unsigned int counter = 0;
 
 void setup()
 {
-    Serial.begin(115200);
-
-    while (!Serial)
-    {
-    }
-
     rtc.begin();
+    rtc.setEpoch(1609459200); // 01/01/2021 00h00 is the reference time
 
     startTimeMs = millis();
     counter = 0;
 
+    led.setup();
+    logger.setup();
     Runnable::setupAll();
 
     delay(500);
 
-    Serial.println("Main setup done");
+    logger.e("Main setup done");
 }
+
+unsigned int count = 0;
 
 void loop()
 {
+    led.loop();
+    logger.loop();
     Runnable::loopAll();
 
     if (millis() - startTimeMs > 5000L && !sfm.isDataSent())
@@ -73,11 +77,11 @@ void loop()
             baroSensor.updateSensorsData(&dataToSend);
 
             // Todo : Query Soil moisture sensor and set timestamp
-            dataToSend.soilHumValue = 1;
-            dataToSend.currentTimestamp = rtc.getEpoch();
+            // dataToSend.soilHumValue = 1;
+             dataToSend.currentTimestamp = rtc.getEpoch();
 
-            Serial.print("Timestamp to send: ");
-            Serial.println(dataToSend.currentTimestamp);
+            String timestampLog = "Timestamp to send: " + String(dataToSend.currentTimestamp);
+            logger.e(timestampLog);
 
             // Measures are done, reset sensor switch
             sensorsSwitch.switchState(false);
@@ -85,7 +89,7 @@ void loop()
             // Sprinkle relay Test
             // sprinkle.switchRelay();
 
-            Serial.println("Trigger");
+            logger.e("All data fetched");
 
             startTimeMs = millis();
         }

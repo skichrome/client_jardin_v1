@@ -1,10 +1,15 @@
 #include "sensors/BaroSensor.h"
 
+BaroSensor::BaroSensor(Logger *mLogger) : logger(NULL)
+{
+    logger = mLogger;
+}
+
 void BaroSensor::setup()
 {
     if (!sensor.begin())
     {
-        Serial.println("Can't start baro sensor communication");
+        logger->e("Can't start baro sensor communication");
         state = BaroSensor::NOT_FOUND;
 
         // Set to error values
@@ -16,7 +21,6 @@ void BaroSensor::setup()
         configureBaroSensor();
 
     measuringDelayMs = millis();
-    Serial.println("Successfully configured baro sensor");
 }
 
 void BaroSensor::loop()
@@ -29,27 +33,23 @@ void BaroSensor::loop()
             state = BaroSensor::MEASURING;
             break;
         case BaroSensor::MEASURING:
+        {
             pascals = sensor.getPressure();
             altm = sensor.getAltitude();
             temperature = sensor.getTemperature();
 
-            Serial.print("Pressure: ");
-            Serial.println((uint8_t)map(pascals * 100, 8850000, 11410000, 0, 255));
-
-            Serial.print("computed altitude: ");
-            Serial.println(altm);
-
-            Serial.print("temperature: ");
-            Serial.println(temperature);
+            String msg = "Pressure: " + String((uint8_t)map(pascals * 100, 8850000, 11410000, 0, 255)) + " computed altitude: " + String(altm) + " temperature: " + String(temperature);
+            logger->e(msg);
 
             if (pascals > -1.0 && altm > -1.0 && temperature > -1.0)
                 state = BaroSensor::DONE;
             break;
+        }
         case BaroSensor::DONE:
             break;
         default:
             if (!sensor.begin())
-                Serial.println("Can't start baro sensor communication");
+                logger->e("Can't start baro sensor communication");
             else
                 configureBaroSensor();
             break;
@@ -62,6 +62,7 @@ void BaroSensor::loop()
 void BaroSensor::configureBaroSensor()
 {
     state = BaroSensor::READY;
+    logger->e("Successfully configured baro sensor");
 }
 
 boolean BaroSensor::isDataReady()

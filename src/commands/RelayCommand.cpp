@@ -1,7 +1,8 @@
 #include "commands/RelayCommand.h"
 
-RelayCommand::RelayCommand(byte attachToOn, byte attachToOff)
+RelayCommand::RelayCommand(Logger *mLogger, byte attachToOn, byte attachToOff): logger(NULL)
 {
+    logger = mLogger;
     pinOn = attachToOn;
     pinOff = attachToOff;
 }
@@ -17,7 +18,7 @@ void RelayCommand::setup()
     stateUpdateDelayMs = millis();
     currentRelayState = RelayCommand::IDLE_SET;
 
-    Serial.println("Successfully configured Relay");
+    logger->e("Successfully configured Relay");
 }
 
 void RelayCommand::loop()

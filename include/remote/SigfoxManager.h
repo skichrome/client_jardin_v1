@@ -1,17 +1,19 @@
-#ifndef _SIGFOXMANAGER_H
-#define _SIGFOXMANAGER_H
+#ifndef _SIGFOX_MANAGER_H
+#define _SIGFOX_MANAGER_H
 
 #include <RTCZero.h>
 #include <SigFox.h>
 #include <SD.h>
 
 #include "utils/Runnable.h"
+#include "utils/Logger.h"
 #include "model/SensorsData.h"
 #include "model/CallbackData.h"
 
 class SigfoxManager : Runnable
 {
 private:
+    Logger *logger;
     SensorsData *sensorsData;
     CallbackData *callbackData;
     RTCZero *rtc;
@@ -35,7 +37,7 @@ protected:
     virtual void loop();
 
 public:
-    SigfoxManager(SensorsData *mData, RTCZero *mRtc);
+    SigfoxManager(Logger *mLogger, SensorsData *mData, RTCZero *mRtc);
 
     boolean isDataSent();
     boolean isDataSentAndCallbackHandled();

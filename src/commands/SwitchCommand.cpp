@@ -1,13 +1,19 @@
 #include "commands/SwitchCommand.h"
 
+SwitchCommand::SwitchCommand(Logger *mLogger, byte attachTo) : logger(NULL)
+{
+    logger = mLogger;
+    pin = attachTo;
+}
+
 void SwitchCommand::setup()
 {
     pinMode(pin, OUTPUT);
     currentState = SwitchCommand::SWITCHED_ON;
     updatedState = currentState;
     digitalWrite(pin, currentState);
-    
-    Serial.println("Successfully configured sensor switch");
+
+    logger->e("Successfully configured sensor switch");
 }
 
 void SwitchCommand::loop()

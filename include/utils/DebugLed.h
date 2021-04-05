@@ -2,9 +2,8 @@
 #define _LED_H
 
 #include <Arduino.h>
-#include "Runnable.h"
 
-class DebugLed : public Runnable
+class DebugLed
 {
 private:
     byte pin;
@@ -31,14 +30,11 @@ private:
 
     unsigned long startDurationMs = 0L;
 
-protected:
-    virtual void setup();
-    virtual void loop();
-
 public:
-    DebugLed(byte attachTo) : pin(attachTo)
-    {
-    }
+    DebugLed(byte attachTo);
+    
+    void setup();
+    void loop();
 
     void blinkErrorCode(unsigned int code);
 };

@@ -1,20 +1,22 @@
 #include "sensors/LuxSensor.h"
 
+LuxSensor::LuxSensor(Logger *mLogger) : logger(NULL)
+{
+    logger = mLogger;
+}
+
 void LuxSensor::setup()
 {
     if (!sensor.begin())
     {
-        Serial.println("Can't start lux sensor communication");
-        led.blinkErrorCode(10);
+        logger->e("Can't start lux sensor communication");
         state = LuxSensor::NOT_FOUND;
 
         // Set to error values
-        lux = -2L;
+        lux = -2;
     }
     else
         configureLuxSensor();
-
-    Serial.println("Successfully configured lux sensor");
 }
 
 void LuxSensor::loop()
@@ -27,19 +29,21 @@ void LuxSensor::loop()
             state = LuxSensor::MEASURING;
             break;
         case LuxSensor::MEASURING:
+        {
             lux = sensor.readLux();
-            
-            Serial.print("Lux: ");
-            Serial.println(lux);
 
-            if (lux > -1L)
+            String msg = "Lux: " + String(lux);
+            logger->e(msg);
+
+            if (lux > -1)
                 state = LuxSensor::DONE;
             break;
+        }
         case LuxSensor::DONE:
             break;
         default:
             if (!sensor.begin())
-                Serial.println("Can't start lux sensor communication");
+                logger->e("Can't start lux sensor communication");
             else
                 configureLuxSensor();
             break;
@@ -57,6 +61,7 @@ void LuxSensor::configureLuxSensor()
 
     measuringDelayMs = millis();
     state = LuxSensor::READY;
+    logger->e("Successfully configured lux sensor");
 }
 
 boolean LuxSensor::isDataReady()

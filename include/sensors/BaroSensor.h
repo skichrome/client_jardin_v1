@@ -1,14 +1,16 @@
-#ifndef _BAROSENSOR_H
-#define _BAROSENSOR_H
+#ifndef _BARO_SENSOR_H
+#define _BARO_SENSOR_H
 
 #include <Adafruit_MPL3115A2.h>
 
 #include "utils/Runnable.h"
+#include "utils/Logger.h"
 #include "model/SensorsData.h"
 
 class BaroSensor : Runnable
 {
 private:
+    Logger *logger;
     enum State
     {
         NOT_FOUND,
@@ -32,8 +34,8 @@ protected:
     virtual void loop();
 
 public:
-    BaroSensor() {}
-    
+    BaroSensor(Logger *mLogger);
+
     boolean isDataReady();
     void updateSensorsData(SensorsData *mData);
 };

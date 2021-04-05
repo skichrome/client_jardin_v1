@@ -1,7 +1,8 @@
 #include "remote/SigfoxManager.h"
 
-SigfoxManager::SigfoxManager(SensorsData *mData, RTCZero *mRtc) : sensorsData(NULL), rtc(NULL)
+SigfoxManager::SigfoxManager(Logger *mLogger, SensorsData *mData, RTCZero *mRtc) : logger(NULL), sensorsData(NULL), rtc(NULL)
 {
+    logger = mLogger;
     sensorsData = mData;
     rtc = mRtc;
 }
@@ -15,11 +16,11 @@ void SigfoxManager::setup()
 
     // SD Card configuration
     if (!SD.begin(4))
-        Serial.println("Can't configure SD Card lib in SigFoxManager");
+        logger->e("Can't configure SD Card lib in SigFoxManager");
+    else
+        logger->e("Successfully configured SigfoxManager");
 
     state = SigfoxManager::WAITING_DATA;
-
-    Serial.println("Successfully configured SigfoxManager");
 }
 
 /**
@@ -92,18 +93,14 @@ void SigfoxManager::handleSigfoxResponseCallback()
 
         callbackData = (CallbackData *)response;
 
-        Serial.print("Struct timestamp : ");
-        Serial.println(callbackData->timestamp);
-        Serial.print("Struct startTime : ");
-        Serial.println(callbackData->sprinkleStartTime);
-        Serial.print("Struct duration : ");
-        Serial.println(callbackData->sprinleDuration);
+        String msg = "Struct timestamp : " + String(callbackData->timestamp) + "Struct startTime : " + String(callbackData->sprinkleStartTime) + "Struct duration : " + String(callbackData->sprinleDuration);
+        logger->e(msg);
 
         int gap = abs(rtc->getEpoch() - callbackData->timestamp);
         if (gap > 20)
         {
-            Serial.print("Timestamp correction performed. Gap : ");
-            Serial.println(gap);
+            String gapMsg = "Timestamp correction performed. Gap : " + String(gap);
+            logger->e(gapMsg);
             rtc->setEpoch(callbackData->timestamp);
         }
 
@@ -111,7 +108,7 @@ void SigfoxManager::handleSigfoxResponseCallback()
     }
     else
     {
-        Serial.println("No response from Sigfox backend");
+        logger->e("No response from Sigfox backend");
         state = SigfoxManager::CALLBACK_ERROR;
     }
 }
@@ -132,7 +129,7 @@ void SigfoxManager::saveCallbackToFile()
         callbackFile.close();
     }
     else
-        Serial.println("can't open config.txt to write callback data");
+        logger->e("can't open config.txt to write callback data");
 
     File readTest = SD.open("config.txt", FILE_READ);
 
@@ -140,11 +137,11 @@ void SigfoxManager::saveCallbackToFile()
     {
         while (readTest.available())
         {
-            Serial.print("Data read : ");
-            Serial.println(readTest.read());
+            String msg = "Data read : " + String(readTest.read());
+            logger->e(msg);
         }
         readTest.close();
     }
     else
-        Serial.println("can't open config.txt for readTest");
+        logger->e("can't open config.txt for readTest");
 }

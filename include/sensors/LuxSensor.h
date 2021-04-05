@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "utils/Runnable.h"
+#include "utils/Logger.h"
 #include "utils/DebugLed.h"
 #include "model/SensorsData.h"
 
@@ -11,6 +12,7 @@
 class LuxSensor : public Runnable
 {
 private:
+    Logger *logger;
     enum State
     {
         NOT_FOUND,
@@ -19,10 +21,9 @@ private:
         DONE
     } state = NOT_FOUND;
 
-    DebugLed &led;
     Adafruit_VEML7700 sensor = Adafruit_VEML7700();
 
-    long lux = -1L;
+    uint16_t lux = -1L;
 
     unsigned long measuringDelayMs = 0L;
     const unsigned long DELAY = 2000L;
@@ -34,7 +35,7 @@ protected:
     virtual void loop();
 
 public:
-    LuxSensor(DebugLed &mLed) : led(mLed) {}
+    LuxSensor(Logger *mLogger);
 
     boolean isDataReady();
     void updateSensorData(SensorsData *mData);

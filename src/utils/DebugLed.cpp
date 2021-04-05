@@ -1,5 +1,10 @@
 #include "utils/DebugLed.h"
 
+DebugLed::DebugLed(byte attachTo)
+{
+	pin = attachTo;
+}
+
 void DebugLed::setup()
 {
 	pinMode(pin, OUTPUT);

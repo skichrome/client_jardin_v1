@@ -9,6 +9,7 @@ SoilSensor::SoilSensor(Logger *mLogger, pin_size_t attachTo) : logger(NULL)
 void SoilSensor::setup()
 {
     pinMode(pin, INPUT);
+    logger->e("Successfully configured Soil sensor");
 }
 
 void SoilSensor::loop()
@@ -22,7 +23,7 @@ void SoilSensor::loop()
     {
         humidity = analogRead(pin);
 
-        String msg = "Humidity: " + String(humidity);
+        String msg = "Raw Humidity: " + String(humidity);
         logger->e(msg);
 
         if (humidity > -1)
@@ -43,5 +44,5 @@ boolean SoilSensor::isDataReady()
 
 void SoilSensor::updateSensorData(SensorsData *mData)
 {
-    mData->soilHumValue = humidity;
+    mData->soilHumValue = map(humidity, 0, 1024, 0, 255);
 }

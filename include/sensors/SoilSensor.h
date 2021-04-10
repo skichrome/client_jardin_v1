@@ -11,7 +11,7 @@ private:
     Logger *logger;
     pin_size_t pin;
 
-    int8_t humidity = -1;
+    int humidity = -1;
 
     enum State
     {

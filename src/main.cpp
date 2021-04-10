@@ -46,7 +46,8 @@ unsigned int counter = 0;
 void setup()
 {
     rtc.begin();
-    rtc.setEpoch(1609459200); // 01/01/2021 00h00 is the reference time
+    if (rtc.getEpoch() < 1609459200)
+        rtc.setEpoch(1609459200); // 01/01/2021 00h00 is the reference time
 
     startTimeMs = millis();
     counter = 0;
@@ -68,7 +69,7 @@ void loop()
     logger.loop();
     Runnable::loopAll();
 
-    if (millis() - startTimeMs > 5000L && !sfm.isDataSent())
+    if (millis() - startTimeMs > 2000L && !sfm.isDataSent())
     {
         if (luxSensor.isDataReady() && baroSensor.isDataReady())
         {
@@ -77,8 +78,8 @@ void loop()
             baroSensor.updateSensorsData(&dataToSend);
 
             // Todo : Query Soil moisture sensor and set timestamp
-            // dataToSend.soilHumValue = 1;
-             dataToSend.currentTimestamp = rtc.getEpoch();
+            //dataToSend.soilHumValue = 1;
+            dataToSend.currentTimestamp = rtc.getEpoch();
 
             String timestampLog = "Timestamp to send: " + String(dataToSend.currentTimestamp);
             logger.e(timestampLog);
@@ -90,8 +91,10 @@ void loop()
             // sprinkle.switchRelay();
 
             logger.e("All data fetched");
-
-            startTimeMs = millis();
         }
+        else
+            logger.e("Lux or baro data not ready");
+
+        startTimeMs = millis();
     }
 }

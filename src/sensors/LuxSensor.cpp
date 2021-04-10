@@ -13,7 +13,7 @@ void LuxSensor::setup()
         state = LuxSensor::NOT_FOUND;
 
         // Set to error values
-        lux = -2;
+        lux = -2.0;
     }
     else
         configureLuxSensor();
@@ -32,10 +32,10 @@ void LuxSensor::loop()
         {
             lux = sensor.readLux();
 
-            String msg = "Lux: " + String(lux);
+            String msg = "Raw Lux: " + String(lux);
             logger->e(msg);
 
-            if (lux > -1)
+            if (lux > -1.0)
                 state = LuxSensor::DONE;
             break;
         }

@@ -14,7 +14,7 @@
 struct __attribute__((packed)) SensorsData
 {
     uint32_t currentTimestamp;
-    uint8_t luxValue;
+    uint16_t luxValue;
     uint8_t altValue;
     uint8_t baroValue;
     uint8_t soilHumValue;

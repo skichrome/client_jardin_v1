@@ -33,7 +33,8 @@ void SigfoxManager::setup()
  * - Soil moisture : 5a => 90
  * - Temperature : 78 => 120
  *
- * local_timestamp::uint:32 lux::uint:8 altitude::uint:8 baro::uint:8 soil_moisture::uint:8 temperature::uint:8
+ * Sigfox Payload config (in callback editor : device type -> name -> callbacks -> edit)
+ * local_timestamp::uint:32:little-endian lux::uint:16:little-endian altitude::uint:8:little-endian baro::uint:8:little-endian soil_moisture::uint:8:little-endian temperature::uint:8:little-endian
  *
  * /!\ Numbers are written in little endian format /!\
  */
@@ -93,16 +94,10 @@ void SigfoxManager::handleSigfoxResponseCallback()
 
         callbackData = (CallbackData *)response;
 
-        String msg = "Struct timestamp : " + String(callbackData->timestamp) + "Struct startTime : " + String(callbackData->sprinkleStartTime) + "Struct duration : " + String(callbackData->sprinleDuration);
+        String msg = "Struct timestamp : " + String(callbackData->timestamp) + " Struct startTime : " + String(callbackData->sprinkleStartTime) + " Struct duration : " + String(callbackData->sprinleDuration);
         logger->e(msg);
 
-        int gap = abs(rtc->getEpoch() - callbackData->timestamp);
-        if (gap > 20)
-        {
-            String gapMsg = "Timestamp correction performed. Gap : " + String(gap);
-            logger->e(gapMsg);
-            rtc->setEpoch(callbackData->timestamp);
-        }
+        rtc->setEpoch(callbackData->timestamp);
 
         saveCallbackToFile();
     }

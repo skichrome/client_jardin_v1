@@ -15,7 +15,7 @@ void BaroSensor::setup()
         // Set to error values
         pascals = -2.0;
         altm = -2.0;
-        temperature = -2.0;
+        temperature = -200.0;
     }
     else
         configureBaroSensor();
@@ -38,10 +38,10 @@ void BaroSensor::loop()
             altm = sensor.getAltitude();
             temperature = sensor.getTemperature();
 
-            String msg = "Pressure: " + String((uint8_t)map(pascals * 100, 8850000, 11410000, 0, 255)) + " computed altitude: " + String(altm) + " temperature: " + String(temperature);
+            String msg = "Raw Pressure: " + String(pascals) + " raw computed altitude: " + String(altm) + " raw temperature: " + String(temperature);
             logger->e(msg);
 
-            if (pascals > -1.0 && altm > -1.0 && temperature > -1.0)
+            if (pascals > -1.0 && altm > -1.0 && temperature > -100.0)
                 state = BaroSensor::DONE;
             break;
         }
@@ -74,16 +74,18 @@ boolean BaroSensor::isDataReady()
  * Retrieve barometric sensors values into struct input and return this struct
  * 
  * Sensors data units : 
+ * - Altitude : Meters => range from 382m to 637 and mutliply by 100 to get max precision).
  * - Pressure : Pascals => ex: 96425.00 (float) : parse to int (multiply by 100 to avoid loosing float precision if necessary)
  *     and map from min 885 hPa to max 1141 hPa to 0->255 scale
  *     To get back to hPa just add value with min 885hPa
+ * - Temperature : degrees => range from -50 to + 50 °C
  */
 void BaroSensor::updateSensorsData(SensorsData *mData)
 {
     if (state == BaroSensor::DONE)
     {
-        mData->altValue = altm;
+        mData->altValue = map(altm * 100, 38200, 63700, 0, 255);
         mData->baroValue = map(pascals * 100, 8850000, 11410000, 0, 255);
-        mData->temperatureValue = (uint8_t)temperature * 100;
+        mData->temperatureValue = map(temperature * 100, -5000, 5000, 0, 255);
     }
 }

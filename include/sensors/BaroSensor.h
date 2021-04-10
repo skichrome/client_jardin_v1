@@ -25,7 +25,7 @@ private:
     Adafruit_MPL3115A2 sensor = Adafruit_MPL3115A2();
     float pascals = -1.0;
     float altm = -1.0;
-    float temperature = -1.0;
+    float temperature = -100.0;
 
     void configureBaroSensor();
 

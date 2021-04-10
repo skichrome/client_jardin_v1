@@ -102,5 +102,11 @@ void Logger::loop()
 
 void Logger::e(String msg)
 {
+    if (logBufferPosition >= LOG_BUFFER_SIZE)
+    {
+        led->blinkErrorCode(3);
+        return;
+    }
+
     logBuffer[logBufferPosition++] = msg;
 }

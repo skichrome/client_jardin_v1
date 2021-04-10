@@ -23,7 +23,7 @@ private:
 
     Adafruit_VEML7700 sensor = Adafruit_VEML7700();
 
-    uint16_t lux = -1L;
+    float lux = -1.0;
 
     unsigned long measuringDelayMs = 0L;
     const unsigned long DELAY = 2000L;

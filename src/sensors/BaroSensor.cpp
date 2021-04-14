@@ -89,3 +89,11 @@ void BaroSensor::updateSensorsData(SensorsData *mData)
         mData->temperatureValue = map(temperature * 100, -5000, 5000, 0, 255);
     }
 }
+
+void BaroSensor::resetState()
+{
+    pascals = -1.0;
+    altm = -1.0;
+    temperature = -100.0;
+    state = BaroSensor::READY;
+}

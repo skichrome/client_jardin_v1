@@ -2,6 +2,7 @@
 
 #include <RTCZero.h>
 #include <ArduinoLowPower.h>
+#include <SD.h>
 
 /*
  * Auto indent in VSCode on Linux: ctrl + shift + i
@@ -68,7 +69,7 @@ void loop()
     logger.loop();
     Runnable::loopAll();
 
-    if (millis() - startTimeMs > 2000L && !sfm.isDataSent())
+    if (millis() - startTimeMs > 1000L)
     {
         if (luxSensor.isDataReady() && baroSensor.isDataReady() && soilSensor.isDataReady())
         {
@@ -87,9 +88,27 @@ void loop()
             // sprinkle.switchRelay();
 
             logger.e("All data fetched");
+
+            if (sfm.isDataSent())
+            {
+                SD.end();
+
+                // Reset and sleep
+                dataToSend = {};
+                LowPower.deepSleep(1000 * 60 * 15);
+
+                baroSensor.resetState();
+                luxSensor.resetState();
+                soilSensor.resetState();
+                sfm.resetState();
+            }
         }
         else
-            logger.e("Lux or baro data not ready");
+        {
+            // Ensure sensors switch is active
+            sensorsSwitch.switchState(true);
+            logger.e("One sensor data not ready");
+        }
 
         startTimeMs = millis();
     }

@@ -46,3 +46,9 @@ void SoilSensor::updateSensorData(SensorsData *mData)
 {
     mData->soilHumValue = map(humidity, 0, 1024, 0, 255);
 }
+
+void SoilSensor::resetState()
+{
+    humidity = -1;
+    state = SoilSensor::READY;
+}

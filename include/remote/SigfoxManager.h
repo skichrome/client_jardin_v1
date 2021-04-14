@@ -41,6 +41,7 @@ public:
 
     boolean isDataSent();
     boolean isDataSentAndCallbackHandled();
+    void resetState();
 };
 
 #endif

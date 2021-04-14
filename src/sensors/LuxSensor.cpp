@@ -73,3 +73,9 @@ void LuxSensor::updateSensorData(SensorsData *mData)
 {
     mData->luxValue = lux;
 }
+
+void LuxSensor::resetState()
+{
+    lux = -1.0;
+    state = NOT_FOUND;
+}

@@ -39,6 +39,7 @@ public:
 
     boolean isDataReady();
     void updateSensorData(SensorsData *mData);
+    void resetState();
 };
 
 #endif

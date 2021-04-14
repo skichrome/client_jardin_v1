@@ -58,7 +58,6 @@ void SigfoxManager::loop()
 
     case SigfoxManager::WAITING_CALLBACK:
         handleSigfoxResponseCallback();
-        state = SigfoxManager::DONE;
         break;
 
     default:
@@ -74,6 +73,11 @@ boolean SigfoxManager::isDataSent()
 boolean SigfoxManager::isDataSentAndCallbackHandled()
 {
     return state == SigfoxManager::DONE;
+}
+
+void SigfoxManager::resetState()
+{
+    state = SigfoxManager::WAITING_DATA;
 }
 
 void SigfoxManager::handleSigfoxResponseCallback()
@@ -100,6 +104,7 @@ void SigfoxManager::handleSigfoxResponseCallback()
         rtc->setEpoch(callbackData->timestamp);
 
         saveCallbackToFile();
+        state = SigfoxManager::DONE;
     }
     else
     {
@@ -126,17 +131,17 @@ void SigfoxManager::saveCallbackToFile()
     else
         logger->e("can't open config.txt to write callback data");
 
-    File readTest = SD.open("config.txt", FILE_READ);
+    // File readTest = SD.open("config.txt", FILE_READ);
 
-    if (readTest)
-    {
-        while (readTest.available())
-        {
-            String msg = "Data read : " + String(readTest.read());
-            logger->e(msg);
-        }
-        readTest.close();
-    }
-    else
-        logger->e("can't open config.txt for readTest");
+    // if (readTest)
+    // {
+    //     while (readTest.available())
+    //     {
+    //         String msg = "Data read : " + String(readTest.read());
+    //         logger->e(msg);
+    //     }
+    //     readTest.close();
+    // }
+    // else
+    //     logger->e("can't open config.txt for readTest");
 }

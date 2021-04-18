@@ -14,11 +14,7 @@ void SigfoxManager::setup()
     SigFox.debug();
     SigFox.end();
 
-    // SD Card configuration
-    if (!SD.begin(4))
-        logger->e("Can't configure SD Card lib in SigFoxManager");
-    else
-        logger->e("Successfully configured SigfoxManager");
+    configureSDCard();
 
     state = SigfoxManager::WAITING_DATA;
 }
@@ -80,6 +76,14 @@ void SigfoxManager::resetState()
     state = SigfoxManager::WAITING_DATA;
 }
 
+void SigfoxManager::configureSDCard()
+{
+    if (!SD.begin(4))
+        logger->e("Can't configure SD Card lib in SigFoxManager");
+    else
+        logger->e("Successfully configured SigfoxManager");
+}
+
 void SigfoxManager::handleSigfoxResponseCallback()
 {
     if (SigFox.parsePacket())
@@ -115,11 +119,13 @@ void SigfoxManager::handleSigfoxResponseCallback()
 
 void SigfoxManager::saveCallbackToFile()
 {
-    // Remove old config file before saving content
-    if (SD.exists("config.txt"))
-        SD.remove("config.txt");
+    configureSDCard();
 
-    File callbackFile = SD.open("config.txt", FILE_WRITE);
+    // Remove old config file before saving content
+    if (SD.exists("CONFIG.TXT"))
+        SD.remove("CONFIG.TXT");
+
+    File callbackFile = SD.open("CONFIG.TXT", FILE_WRITE);
     if (callbackFile)
     {
         callbackFile.println(callbackData->timestamp);
@@ -129,19 +135,7 @@ void SigfoxManager::saveCallbackToFile()
         callbackFile.close();
     }
     else
-        logger->e("can't open config.txt to write callback data");
+        logger->e("can't open CONFIG.TXT to write callback data");
 
-    // File readTest = SD.open("config.txt", FILE_READ);
-
-    // if (readTest)
-    // {
-    //     while (readTest.available())
-    //     {
-    //         String msg = "Data read : " + String(readTest.read());
-    //         logger->e(msg);
-    //     }
-    //     readTest.close();
-    // }
-    // else
-    //     logger->e("can't open config.txt for readTest");
+    SD.end();
 }

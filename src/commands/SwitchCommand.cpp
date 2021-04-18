@@ -9,7 +9,7 @@ SwitchCommand::SwitchCommand(Logger *mLogger, byte attachTo) : logger(NULL)
 void SwitchCommand::setup()
 {
     pinMode(pin, OUTPUT);
-    currentState = SwitchCommand::SWITCHED_ON;
+    currentState = SwitchCommand::SWITCHED_OFF;
     updatedState = currentState;
     digitalWrite(pin, currentState);
 
@@ -22,6 +22,7 @@ void SwitchCommand::loop()
     {
         currentState = updatedState;
         digitalWrite(pin, currentState);
+        logger->e("Updated sensor state");
     }
 }
 
@@ -31,4 +32,9 @@ void SwitchCommand::switchState(boolean newState)
         updatedState = SwitchCommand::SWITCHED_ON;
     else
         updatedState = SwitchCommand::SWITCHED_OFF;
+}
+
+boolean SwitchCommand::isSwitchedOff()
+{
+    return currentState == SwitchCommand::SWITCHED_OFF;
 }

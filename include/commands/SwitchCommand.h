@@ -25,6 +25,7 @@ public:
     SwitchCommand(Logger *mLogger, byte attachTo);
 
     void switchState(boolean newState);
+    boolean isSwitchedOff();
 };
 
 #endif

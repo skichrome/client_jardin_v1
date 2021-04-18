@@ -27,6 +27,7 @@ private:
         CALLBACK_ERROR
     } state;
 
+    void configureSDCard();
     void handleSigfoxResponseCallback();
     void saveCallbackToFile();
 

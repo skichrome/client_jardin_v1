@@ -15,8 +15,7 @@ private:
     RTCZero *rtc;
     DebugLed *led;
 
-    String logBuffer[LOG_BUFFER_SIZE];
-    uint8_t logBufferPosition;
+    void configureSDCard();
 
 public:
     Logger(RTCZero *mRtc, DebugLed *mLed);

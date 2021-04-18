@@ -2,12 +2,6 @@
 
 #include <RTCZero.h>
 #include <ArduinoLowPower.h>
-#include <SD.h>
-
-/*
- * Auto indent in VSCode on Linux: ctrl + shift + i
- * Auto indent in VSCode on Windows: shift + alt + F ?
-*/
 
 #include "utils/Runnable.h"
 #include "utils/Logger.h"
@@ -45,6 +39,7 @@ SwitchCommand sensorsSwitch = SwitchCommand(&logger, SENSORS_COMMAND_SW);
 RelayCommand sprinkle = RelayCommand(&logger, RELAY_ON_PIN, RELAY_OFF_PIN);
 
 unsigned long startTimeMs = 0L;
+boolean sending = false;
 
 void setup()
 {
@@ -58,7 +53,7 @@ void setup()
     logger.setup();
     Runnable::setupAll();
 
-    delay(500);
+    delay(1000);
 
     logger.e("Main setup done");
 }
@@ -68,6 +63,14 @@ void loop()
     led.loop();
     logger.loop();
     Runnable::loopAll();
+
+    // To execute next part of code sensor sw must be on (case all sensors data OK but before sensors switch turn off)
+    if (!sending && sensorsSwitch.isSwitchedOff())
+    {
+        logger.e("Bad sensor switch state, waiting next loop execution");
+        sensorsSwitch.switchState(true);
+        return;
+    }
 
     if (millis() - startTimeMs > 1000L)
     {
@@ -88,19 +91,25 @@ void loop()
             // sprinkle.switchRelay();
 
             logger.e("All data fetched");
+            sending = true;
 
-            if (sfm.isDataSent())
+            if (sfm.isDataSent() && sensorsSwitch.isSwitchedOff())
             {
-                SD.end();
-
-                // Reset and sleep
+                // Reset and sleep (using delay if debug avoid loosing Serial port connexion)
                 dataToSend = {};
-                LowPower.deepSleep(1000 * 60 * 15);
+                int delayMs = 1000 * 60 * 15;
+#ifdef DEBUG
+                delay(delayMs);
+#else
+                LowPower.deepSleep(delayMs);
+#endif
 
                 baroSensor.resetState();
                 luxSensor.resetState();
                 soilSensor.resetState();
                 sfm.resetState();
+
+                sending = false;
             }
         }
         else

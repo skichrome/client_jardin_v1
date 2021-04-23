@@ -16,8 +16,6 @@
 #include "model/SensorsData.h"
 
 #define SENSORS_COMMAND_SW 3
-#define RELAY_ON_PIN 1
-#define RELAY_OFF_PIN 2
 #define MOISTURE_SENSOR_PIN A0
 
 Runnable *Runnable::headRunnable = NULL;
@@ -29,14 +27,13 @@ Logger logger = Logger(&rtc, &led);
 
 SensorsData dataToSend = SensorsData();
 
-SigfoxManager sfm = SigfoxManager(&logger, &dataToSend, &rtc);
+SigfoxManager sfm = SigfoxManager(&logger, &rtc);
 
 LuxSensor luxSensor = LuxSensor(&logger);
 BaroSensor baroSensor = BaroSensor(&logger);
 SoilSensor soilSensor = SoilSensor(&logger, MOISTURE_SENSOR_PIN);
 
 SwitchCommand sensorsSwitch = SwitchCommand(&logger, SENSORS_COMMAND_SW);
-RelayCommand sprinkle = RelayCommand(&logger, RELAY_ON_PIN, RELAY_OFF_PIN);
 
 unsigned long startTimeMs = 0L;
 boolean sending = false;
@@ -87,10 +84,7 @@ void loop()
             // Measures are done, reset sensor switch
             sensorsSwitch.switchState(false);
 
-            // Sprinkle relay Test
-            // sprinkle.switchRelay();
-
-            logger.e("All data fetched");
+            sfm.sendData(&dataToSend);
             sending = true;
 
             if (sfm.isDataSent() && sensorsSwitch.isSwitchedOff())
@@ -103,6 +97,7 @@ void loop()
 #else
                 LowPower.deepSleep(delayMs);
 #endif
+                logger.e("wake up");
 
                 baroSensor.resetState();
                 luxSensor.resetState();

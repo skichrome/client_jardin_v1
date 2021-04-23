@@ -38,8 +38,9 @@ protected:
     virtual void loop();
 
 public:
-    SigfoxManager(Logger *mLogger, SensorsData *mData, RTCZero *mRtc);
+    SigfoxManager(Logger *mLogger, RTCZero *mRtc);
 
+    boolean sendData(SensorsData *mSensorData);
     boolean isDataSent();
     boolean isDataSentAndCallbackHandled();
     void resetState();

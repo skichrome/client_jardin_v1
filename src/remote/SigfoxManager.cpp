@@ -1,9 +1,8 @@
 #include "remote/SigfoxManager.h"
 
-SigfoxManager::SigfoxManager(Logger *mLogger, SensorsData *mData, RTCZero *mRtc) : logger(NULL), sensorsData(NULL), rtc(NULL)
+SigfoxManager::SigfoxManager(Logger *mLogger, RTCZero *mRtc) : logger(NULL), sensorsData(NULL), rtc(NULL)
 {
     logger = mLogger;
-    sensorsData = mData;
     rtc = mRtc;
 }
 
@@ -38,11 +37,6 @@ void SigfoxManager::loop()
 {
     switch (state)
     {
-    case SigfoxManager::WAITING_DATA:
-        if (sensorsData->altValue && sensorsData->baroValue && sensorsData->currentTimestamp && sensorsData->luxValue && sensorsData->soilHumValue && sensorsData->temperatureValue)
-            state = SigfoxManager::SENDING;
-        break;
-
     case SigfoxManager::SENDING:
         // Todo : convert data to hex, send data and wait callback
         SigFox.begin();
@@ -58,6 +52,23 @@ void SigfoxManager::loop()
 
     default:
         break;
+    }
+}
+
+boolean SigfoxManager::sendData(SensorsData *mSensorData)
+{
+    if (state == SigfoxManager::WAITING_DATA)
+    {
+        logger->e("SigfoxManager has received data to send");
+        sensorsData = mSensorData;
+        state = SigfoxManager::SENDING;
+        return true;
+    }
+    else
+    {
+        //logger->e("Waiting sensor data (alt: " + String(sensorsData->altValue) + ")-(baro: " + String(sensorsData->baroValue) + ")-(timestamp: " + String(sensorsData->currentTimestamp) + ")-(lux: " + String(sensorsData->luxValue) + ")-(soilHum: " + String(sensorsData->soilHumValue) + ")-(tmp: " + String(sensorsData->temperatureValue));
+        logger->e("SigfoxManager already sending data, ignoring");
+        return false;
     }
 }
 
@@ -124,6 +135,8 @@ void SigfoxManager::saveCallbackToFile()
     // Remove old config file before saving content
     if (SD.exists("CONFIG.TXT"))
         SD.remove("CONFIG.TXT");
+    else
+        logger->e("CONFIX.TXT don't exists");
 
     File callbackFile = SD.open("CONFIG.TXT", FILE_WRITE);
     if (callbackFile)

@@ -4,6 +4,8 @@ SigfoxManager::SigfoxManager(Logger *mLogger, RTCZero *mRtc) : logger(NULL), sen
 {
     logger = mLogger;
     rtc = mRtc;
+
+    state = SigfoxManager::WAITING_DATA;
 }
 
 void SigfoxManager::setup()
@@ -14,8 +16,6 @@ void SigfoxManager::setup()
     SigFox.end();
 
     configureSDCard();
-
-    state = SigfoxManager::WAITING_DATA;
 }
 
 /**
@@ -59,7 +59,7 @@ boolean SigfoxManager::sendData(SensorsData *mSensorData)
 {
     if (state == SigfoxManager::WAITING_DATA)
     {
-        logger->e("SigfoxManager has received data to send");
+        logger->e(F("SigfoxManager has received data to send"));
         sensorsData = mSensorData;
         state = SigfoxManager::SENDING;
         return true;
@@ -67,7 +67,7 @@ boolean SigfoxManager::sendData(SensorsData *mSensorData)
     else
     {
         //logger->e("Waiting sensor data (alt: " + String(sensorsData->altValue) + ")-(baro: " + String(sensorsData->baroValue) + ")-(timestamp: " + String(sensorsData->currentTimestamp) + ")-(lux: " + String(sensorsData->luxValue) + ")-(soilHum: " + String(sensorsData->soilHumValue) + ")-(tmp: " + String(sensorsData->temperatureValue));
-        logger->e("SigfoxManager already sending data, ignoring");
+        logger->e(F("SigfoxManager already sending data, ignoring"));
         return false;
     }
 }
@@ -90,9 +90,9 @@ void SigfoxManager::resetState()
 void SigfoxManager::configureSDCard()
 {
     if (!SD.begin(4))
-        logger->e("Can't configure SD Card lib in SigFoxManager");
+        logger->e(F("Can't configure SD Card lib in SigFoxManager"));
     else
-        logger->e("Successfully configured SigfoxManager");
+        logger->e(F("Successfully configured SigfoxManager"));
 }
 
 void SigfoxManager::handleSigfoxResponseCallback()
@@ -111,34 +111,33 @@ void SigfoxManager::handleSigfoxResponseCallback()
             response[counter++] = inputByte;
         }
 
-        callbackData = (CallbackData *)response;
+        CallbackData *callbackData = (CallbackData *)response;
 
-        String msg = "Struct timestamp : " + String(callbackData->timestamp) + " Struct startTime : " + String(callbackData->sprinkleStartTime) + " Struct duration : " + String(callbackData->sprinleDuration);
-        logger->e(msg);
+        logger->e(F("Callback data has been received"));
 
         rtc->setEpoch(callbackData->timestamp);
 
-        saveCallbackToFile();
+        saveCallbackToFile(callbackData);
         state = SigfoxManager::DONE;
     }
     else
     {
-        logger->e("No response from Sigfox backend");
+        logger->e(F("No response from Sigfox backend"));
         state = SigfoxManager::CALLBACK_ERROR;
     }
 }
 
-void SigfoxManager::saveCallbackToFile()
+void SigfoxManager::saveCallbackToFile(CallbackData *callbackData)
 {
     configureSDCard();
 
     // Remove old config file before saving content
-    if (SD.exists("CONFIG.TXT"))
-        SD.remove("CONFIG.TXT");
+    if (SD.exists(configFileName))
+        SD.remove(configFileName);
     else
-        logger->e("CONFIX.TXT don't exists");
+        logger->e(F("CONFIX.TXT don't exists"));
 
-    File callbackFile = SD.open("CONFIG.TXT", FILE_WRITE);
+    File callbackFile = SD.open(configFileName, FILE_WRITE);
     if (callbackFile)
     {
         callbackFile.println(callbackData->timestamp);
@@ -148,7 +147,7 @@ void SigfoxManager::saveCallbackToFile()
         callbackFile.close();
     }
     else
-        logger->e("can't open CONFIG.TXT to write callback data");
+        logger->e(F("can't open CONFIG.TXT to write callback data"));
 
     SD.end();
 }

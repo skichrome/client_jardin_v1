@@ -19,7 +19,7 @@ void Logger::setup()
         led->blinkErrorCode(2);
     }
 
-    Serial.println("Logger ready");
+    Serial.println(F("Logger ready"));
 }
 
 void Logger::loop()

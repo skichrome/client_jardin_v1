@@ -15,8 +15,9 @@ class SigfoxManager : Runnable
 private:
     Logger *logger;
     SensorsData *sensorsData;
-    CallbackData *callbackData;
     RTCZero *rtc;
+
+    const char configFileName[11] = "CONFIG.TXT";
 
     enum State
     {
@@ -29,7 +30,7 @@ private:
 
     void configureSDCard();
     void handleSigfoxResponseCallback();
-    void saveCallbackToFile();
+    void saveCallbackToFile(CallbackData *callbackData);
 
     long onConfigurationReceived();
 

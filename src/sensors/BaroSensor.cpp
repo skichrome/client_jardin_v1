@@ -3,13 +3,14 @@
 BaroSensor::BaroSensor(Logger *mLogger) : logger(NULL)
 {
     logger = mLogger;
+    state = BaroSensor::READY;
 }
 
 void BaroSensor::setup()
 {
     if (!sensor.begin())
     {
-        logger->e("Can't start baro sensor communication");
+        logger->e(F("Can't start baro sensor communication"));
         state = BaroSensor::NOT_FOUND;
 
         // Set to error values
@@ -49,7 +50,7 @@ void BaroSensor::loop()
             break;
         default:
             if (!sensor.begin())
-                logger->e("Can't start baro sensor communication");
+                logger->e(F("Can't start baro sensor communication"));
             else
                 configureBaroSensor();
             break;
@@ -62,7 +63,7 @@ void BaroSensor::loop()
 void BaroSensor::configureBaroSensor()
 {
     state = BaroSensor::READY;
-    logger->e("Successfully configured baro sensor");
+    logger->e(F("Successfully configured baro sensor"));
 }
 
 boolean BaroSensor::isDataReady()

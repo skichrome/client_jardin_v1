@@ -9,7 +9,7 @@ void LuxSensor::setup()
 {
     if (!sensor.begin())
     {
-        logger->e("Can't start lux sensor communication");
+        logger->e(F("Can't start lux sensor communication"));
         state = LuxSensor::NOT_FOUND;
 
         // Set to error values
@@ -43,7 +43,7 @@ void LuxSensor::loop()
             break;
         default:
             if (!sensor.begin())
-                logger->e("Can't start lux sensor communication");
+                logger->e(F("Can't start lux sensor communication"));
             else
                 configureLuxSensor();
             break;
@@ -61,7 +61,7 @@ void LuxSensor::configureLuxSensor()
 
     measuringDelayMs = millis();
     state = LuxSensor::READY;
-    logger->e("Successfully configured lux sensor");
+    logger->e(F("Successfully configured lux sensor"));
 }
 
 boolean LuxSensor::isDataReady()

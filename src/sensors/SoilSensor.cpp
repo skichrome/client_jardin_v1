@@ -9,7 +9,7 @@ SoilSensor::SoilSensor(Logger *mLogger, pin_size_t attachTo) : logger(NULL)
 void SoilSensor::setup()
 {
     pinMode(pin, INPUT);
-    logger->e("Successfully configured Soil sensor");
+    logger->e(F("Successfully configured Soil sensor"));
 }
 
 void SoilSensor::loop()

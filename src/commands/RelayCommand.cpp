@@ -1,10 +1,12 @@
 #include "commands/RelayCommand.h"
 
-RelayCommand::RelayCommand(Logger *mLogger, byte attachToOn, byte attachToOff): logger(NULL)
+RelayCommand::RelayCommand(Logger *mLogger, byte attachToOn, byte attachToOff) : logger(NULL)
 {
     logger = mLogger;
     pinOn = attachToOn;
     pinOff = attachToOff;
+
+    currentRelayState = RelayCommand::IDLE_SET;
 }
 
 void RelayCommand::setup()
@@ -16,9 +18,8 @@ void RelayCommand::setup()
     digitalWrite(pinOff, LOW);
 
     stateUpdateDelayMs = millis();
-    currentRelayState = RelayCommand::IDLE_SET;
 
-    logger->e("Successfully configured Relay");
+    logger->e(F("Successfully configured Relay"));
 }
 
 void RelayCommand::loop()

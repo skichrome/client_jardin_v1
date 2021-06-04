@@ -52,7 +52,7 @@ void setup()
 
     delay(1000);
 
-    logger.e("Main setup done");
+    logger.e(F("Main setup done"));
 }
 
 void loop()
@@ -64,7 +64,7 @@ void loop()
     // To execute next part of code sensor sw must be on (case all sensors data OK but before sensors switch turn off)
     if (!sending && sensorsSwitch.isSwitchedOff())
     {
-        logger.e("Bad sensor switch state, waiting next loop execution");
+        logger.e(F("Bad sensor switch state, waiting next loop execution"));
         sensorsSwitch.switchState(true);
         return;
     }
@@ -97,7 +97,7 @@ void loop()
 #else
                 LowPower.deepSleep(delayMs);
 #endif
-                logger.e("wake up");
+                logger.e(F("wake up"));
 
                 baroSensor.resetState();
                 luxSensor.resetState();
@@ -111,7 +111,7 @@ void loop()
         {
             // Ensure sensors switch is active
             sensorsSwitch.switchState(true);
-            logger.e("One sensor data not ready");
+            logger.e(F("One sensor data not ready"));
         }
 
         startTimeMs = millis();

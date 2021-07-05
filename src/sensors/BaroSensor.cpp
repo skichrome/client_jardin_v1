@@ -42,7 +42,7 @@ void BaroSensor::loop()
             String msg = "Raw Pressure: " + String(pascals) + " raw computed altitude: " + String(altm) + " raw temperature: " + String(temperature);
             logger->e(msg);
 
-            if (pascals > -1.0 && altm > -1.0 && temperature > -100.0)
+            if (pascals > -1.0 && altm > -1.0 && temperature > -100.0 && pascals < 114100.0 && altm < 637.0 && temperature < 50.0)
                 state = BaroSensor::DONE;
             break;
         }

@@ -71,6 +71,7 @@ void loop()
 
     if (millis() - startTimeMs > 1000L)
     {
+        logger.e("Sensor switch status is " + String(sensorsSwitch.isSwitchedOff()));
         if (luxSensor.isDataReady() && baroSensor.isDataReady() && soilSensor.isDataReady())
         {
             // Sensors are connected and have collected data, get values
@@ -89,11 +90,16 @@ void loop()
 
             if (sfm.isDataSent() && sensorsSwitch.isSwitchedOff())
             {
-                // Reset and sleep (using delay if debug avoid loosing Serial port connexion)
+                // Reset and sleep (using delay if debug, to avoid loosing Serial port connexion)
                 dataToSend = {};
-                int delayMs = 1000 * 60 * 15;
+                unsigned int delayMs = 1000 * 60 * 15;
+                unsigned long delayTime = millis();
 #ifdef DEBUG
-                delay(delayMs);
+                while (millis() - delayTime < delayMs)
+                {
+                    delay(30000);
+                    logger.e(F("Sleeping in progress"));
+                }
 #else
                 LowPower.deepSleep(delayMs);
 #endif

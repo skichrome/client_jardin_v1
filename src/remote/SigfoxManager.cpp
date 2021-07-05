@@ -38,7 +38,7 @@ void SigfoxManager::loop()
     switch (state)
     {
     case SigfoxManager::SENDING:
-        // Todo : convert data to hex, send data and wait callback
+        logger->e("(alt: " + String(sensorsData->altValue) + ")-(baro: " + String(sensorsData->baroValue) + ")-(timestamp: " + String(sensorsData->currentTimestamp) + ")-(lux: " + String(sensorsData->luxValue) + ")-(soilHum: " + String(sensorsData->soilHumValue) + ")-(tmp: " + String(sensorsData->temperatureValue) + ")");
         SigFox.begin();
         SigFox.beginPacket();
         SigFox.write((uint8_t *)sensorsData, sizeof(*sensorsData));
@@ -66,7 +66,6 @@ boolean SigfoxManager::sendData(SensorsData *mSensorData)
     }
     else
     {
-        //logger->e("Waiting sensor data (alt: " + String(sensorsData->altValue) + ")-(baro: " + String(sensorsData->baroValue) + ")-(timestamp: " + String(sensorsData->currentTimestamp) + ")-(lux: " + String(sensorsData->luxValue) + ")-(soilHum: " + String(sensorsData->soilHumValue) + ")-(tmp: " + String(sensorsData->temperatureValue));
         logger->e(F("SigfoxManager already sending data, ignoring"));
         return false;
     }

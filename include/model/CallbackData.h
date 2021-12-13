@@ -9,7 +9,8 @@
 struct __attribute__((packed)) CallbackData
 {
     uint32_t timestamp;
-    uint16_t sprinkleStartTime;
+    uint8_t sprinkleStartHour;
+    uint8_t sprinkleStartMinute;
     uint8_t sprinleDuration;
 };
 

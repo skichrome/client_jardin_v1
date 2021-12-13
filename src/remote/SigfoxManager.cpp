@@ -140,7 +140,8 @@ void SigfoxManager::saveCallbackToFile(CallbackData *callbackData)
     if (callbackFile)
     {
         callbackFile.println(callbackData->timestamp);
-        callbackFile.println(callbackData->sprinkleStartTime);
+        callbackFile.println(callbackData->sprinkleStartHour);
+        callbackFile.println(callbackData->sprinkleStartMinute);
         callbackFile.println(callbackData->sprinleDuration);
 
         callbackFile.close();

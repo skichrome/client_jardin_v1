@@ -47,33 +47,63 @@ void SprinkleCommand::loadConfig()
 
     if (configFile)
     {
-        byte line[12] = {};
-        int dataIdx = 0;
+        String line = "";
+        int lineIdx = 0;
 
-        while (char c = configFile.read())
+        while (configFile.available())
         {
-            if (c == EOF)
-                break;
+            uint16_t c = configFile.read();
 
             if (c == '\n')
             {
-                switch (dataIdx++)
+                //Serial.print(" Converted to line : ");
+                //Serial.println(line);
+
+                line = "";
+                lineIdx++;
+
+                continue;
+            }
+
+            if (c >= 48 && c <= 57)
+            {
+                //Serial.print(" Char : ");
+                //Serial.print(c - 48);
+                line += char(c);
+
+                switch (lineIdx)
                 {
+                case 0:
+                    // requestedTimestamp = line.toInt();
+                    break;
                 case 1:
-                    startTime = (int)line;
+                    startTimeHour = line.toInt();
+                    break;
+                case 2:
+                    startTimeMin = line.toInt();
+                    break;
+                case 3:
+                    duration = line.toInt();
                     break;
 
                 default:
+                    //Serial.print("Dropped line ");
+                    //Serial.println(line);
                     break;
                 }
-
-                for (unsigned int i = 0; i < sizeof(line); i++)
-                    line[i] = 0;
             }
+            // else
+            //Serial.print("Bad char value stored");
         }
-
-        // logger->e("Config Text: " + text);
+        configFile.close();
     }
+    else
+    {
+        logger->e(F("Can't open config file, cancelling sprinkle"));
+        return;
+    }
+
+    SD.end();
 }
 
 void SprinkleCommand::sprinkle()

@@ -16,7 +16,8 @@ private:
     Logger *logger;
     RelayCommand relay = RelayCommand(logger, RELAY_ON_PIN, RELAY_OFF_PIN);
 
-    uint16_t startTime;
+    uint8_t startTimeHour;
+    uint8_t startTimeMin;
     uint8_t duration;
     
     const char configFileName[11] = "CONFIG.TXT";

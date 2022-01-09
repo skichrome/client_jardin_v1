@@ -5,12 +5,11 @@
 #include <SigFox.h>
 #include <SD.h>
 
-#include "utils/Runnable.h"
 #include "utils/Logger.h"
 #include "model/SensorsData.h"
 #include "model/CallbackData.h"
 
-class SigfoxManager : Runnable
+class SigfoxManager
 {
 private:
     Logger *logger;
@@ -34,12 +33,11 @@ private:
 
     long onConfigurationReceived();
 
-protected:
-    virtual void setup();
-    virtual void loop();
-
 public:
     SigfoxManager(Logger *mLogger, RTCZero *mRtc);
+
+    void setup();
+    void loop();
 
     boolean sendData(SensorsData *mSensorData);
     boolean isDataSent();

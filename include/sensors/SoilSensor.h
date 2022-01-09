@@ -1,11 +1,10 @@
 #ifndef _SOIL_SENSOR_H
 #define _SOIL_SENSOR_H
 
-#include "utils/Runnable.h"
 #include "utils/Logger.h"
 #include "model/SensorsData.h"
 
-class SoilSensor : Runnable
+class SoilSensor
 {
 private:
     Logger *logger;
@@ -24,12 +23,11 @@ private:
 
     int humidity = -1;
 
-protected:
-    virtual void setup();
-    virtual void loop();
-
 public:
     SoilSensor(Logger *mLogger, pin_size_t attachTo);
+
+    void setup();
+    void loop();
 
     boolean isDataReady();
     void updateSensorData(SensorsData *mData);

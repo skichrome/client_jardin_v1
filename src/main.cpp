@@ -3,11 +3,10 @@
 #include <RTCZero.h>
 #include <ArduinoLowPower.h>
 
-#include "utils/Runnable.h"
 #include "utils/Logger.h"
 #include "utils/DebugLed.h"
 
-#include "sensors/LuxSensor.h"
+// #include "sensors/LuxSensor.h"
 #include "sensors/BaroSensor.h"
 #include "sensors/SoilSensor.h"
 #include "commands/SwitchCommand.h"
@@ -18,8 +17,6 @@
 #define SENSORS_COMMAND_SW 3
 #define MOISTURE_SENSOR_PIN A0
 
-Runnable *Runnable::headRunnable = NULL;
-
 RTCZero rtc;
 
 DebugLed led = DebugLed(LED_BUILTIN);
@@ -29,7 +26,7 @@ SensorsData dataToSend = SensorsData();
 
 SigfoxManager sfm = SigfoxManager(&logger, &rtc);
 
-LuxSensor luxSensor = LuxSensor(&logger);
+// LuxSensor luxSensor = LuxSensor(&logger);
 BaroSensor baroSensor = BaroSensor(&logger);
 SoilSensor soilSensor = SoilSensor(&logger, MOISTURE_SENSOR_PIN);
 
@@ -48,7 +45,6 @@ void setup()
 
     led.setup();
     logger.setup();
-    Runnable::setupAll();
 
     delay(1000);
 
@@ -59,7 +55,6 @@ void loop()
 {
     led.loop();
     logger.loop();
-    Runnable::loopAll();
 
     // To execute next part of code sensor sw must be on (case all sensors data OK but before sensors switch turn off)
     if (!sending && sensorsSwitch.isSwitchedOff())
@@ -72,10 +67,10 @@ void loop()
     if (millis() - startTimeMs > 1000L)
     {
         logger.e("Sensor switch status is " + String(sensorsSwitch.isSwitchedOff()));
-        if (luxSensor.isDataReady() && baroSensor.isDataReady() && soilSensor.isDataReady())
+        if (/*luxSensor.isDataReady() && */baroSensor.isDataReady() && soilSensor.isDataReady())
         {
             // Sensors are connected and have collected data, get values
-            luxSensor.updateSensorData(&dataToSend);
+            // luxSensor.updateSensorData(&dataToSend);
             baroSensor.updateSensorsData(&dataToSend);
             soilSensor.updateSensorData(&dataToSend);
 
@@ -106,7 +101,7 @@ void loop()
                 logger.e(F("wake up"));
 
                 baroSensor.resetState();
-                luxSensor.resetState();
+                // luxSensor.resetState();
                 soilSensor.resetState();
                 sfm.resetState();
 

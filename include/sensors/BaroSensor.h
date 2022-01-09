@@ -3,11 +3,10 @@
 
 #include <Adafruit_MPL3115A2.h>
 
-#include "utils/Runnable.h"
 #include "utils/Logger.h"
 #include "model/SensorsData.h"
 
-class BaroSensor : Runnable
+class BaroSensor
 {
 private:
     Logger *logger;
@@ -34,12 +33,11 @@ private:
 
     void configureBaroSensor();
 
-protected:
-    virtual void setup();
-    virtual void loop();
-
 public:
     BaroSensor(Logger *mLogger);
+
+    void setup();
+    void loop();
 
     boolean isDataReady();
     void updateSensorsData(SensorsData *mData);

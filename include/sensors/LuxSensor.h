@@ -2,14 +2,13 @@
 #define _LUX_SENSOR_H
 
 #include <Arduino.h>
-#include "utils/Runnable.h"
 #include "utils/Logger.h"
 #include "utils/DebugLed.h"
 #include "model/SensorsData.h"
 
 #include <Adafruit_VEML7700.h>
 
-class LuxSensor : public Runnable
+class LuxSensor
 {
 private:
     Logger *logger;
@@ -35,12 +34,11 @@ private:
 
     void configureLuxSensor();
 
-protected:
-    virtual void setup();
-    virtual void loop();
-
 public:
     LuxSensor(Logger *mLogger);
+
+    void setup();
+    void loop();
 
     boolean isDataReady();
     void updateSensorData(SensorsData *mData);

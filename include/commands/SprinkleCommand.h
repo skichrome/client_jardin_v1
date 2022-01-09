@@ -3,14 +3,13 @@
 
 #include <SD.h>
 
-#include "utils/Runnable.h"
 #include "utils/Logger.h"
 #include "commands/RelayCommand.h"
 
 #define RELAY_ON_PIN 1
 #define RELAY_OFF_PIN 2
 
-class SprinkleCommand : Runnable
+class SprinkleCommand
 {
 private:
     Logger *logger;
@@ -19,7 +18,7 @@ private:
     uint8_t startTimeHour;
     uint8_t startTimeMin;
     uint8_t duration;
-    
+
     const char configFileName[11] = "CONFIG.TXT";
 
     enum State
@@ -34,12 +33,11 @@ private:
     void loadConfig();
     void sprinkle();
 
-protected:
-    virtual void setup();
-    virtual void loop();
-
 public:
     SprinkleCommand(Logger *mLogger);
+
+    void setup();
+    void loop();
 };
 
 #endif

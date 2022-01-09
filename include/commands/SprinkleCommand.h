@@ -49,9 +49,9 @@ public:
 
     void setup();
     void loop();
-    
+
     int checkIfSprinkleIsRequired();
-    
+
     void requestStartSprinkle();
     void requestEndSprinkle();
 };

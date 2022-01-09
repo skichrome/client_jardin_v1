@@ -6,8 +6,7 @@
 #include "utils/Logger.h"
 #include "utils/DebugLed.h"
 
-#include "commands/SwitchCommand.h"
-#include "commands/RelayCommand.h"
+#include "commands/SprinkleCommand.h"
 #include "remote/SigfoxManager.h"
 
 #define DEBUG
@@ -22,6 +21,7 @@ DebugLed led = DebugLed(LED_BUILTIN);
 Logger logger = Logger(&rtc, &led);
 
 SigfoxManager sfm = SigfoxManager(&logger, &rtc);
+SprinkleCommand sprinkle = SprinkleCommand(&logger, &rtc);
 
 unsigned long startTimeMs = 0L;
 boolean sending = false;
@@ -30,7 +30,7 @@ boolean sending = false;
 //              Methods
 // =================================
 
-void sleepToNextMeasure()
+void sleepToNextMeasure(int overridedDuration)
 {
 #ifdef DEBUG
     unsigned int durationMinutes = 2;
@@ -43,9 +43,33 @@ void sleepToNextMeasure()
         delay(30000);
         logger.e("Sleeping in progress (" + String(++count) + "/" + String(durationMinutes) + ")");
     }
+
+    if (overridedDuration > 0)
+    {
+        while (millis() - overridedDuration < delayMs)
+        {
+            delay(30000);
+            logger.e("Sleeping in progress (" + String(++count) + "/" + String((int)overridedDuration / 60 / 1000) + ")");
+        }
+    }
+    else
+    {
+        while (millis() - delayTime < delayMs)
+        {
+            delay(30000);
+            logger.e("Sleeping in progress (" + String(++count) + "/" + String(durationMinutes) + ")");
+        }
+    }
 #else
-    unsigned int delayMs = 1000 * 60 * 15;
-    LowPower.deepSleep(delayMs);
+    if (overridedDuration > 0)
+    {
+        LowPower.deepSleep(overridedDuration);
+    }
+    else
+    {
+        int delayMs = 1000 * 60 * 15;
+        LowPower.deepSleep(delayMs);
+    }
 #endif
     logger.e("Wake up");
 }
@@ -66,7 +90,8 @@ void setup()
 
     led.setup();
     logger.setup();
-    sfm.loop();
+    sfm.setup();
+    sprinkle.setup();
 
     delay(1000);
 
@@ -80,10 +105,37 @@ void loop()
     led.loop();
     logger.loop();
     sfm.loop();
+    sprinkle.loop();
 
-    if(sfm.isDataSent() || sfm.isDataSentAndCallbackHandled())
+    bool isSprinkleRunning = false;
+    int sprinkleDuration = sprinkle.checkIfSprinkleIsRequired();
+
+    switch (sprinkleDuration)
     {
-        sleepToNextMeasure();
+    case -1: // Sprinkle isn't required
+    case -2: // Not in idle state
+    case -3: // Last humidity value is under minimal humidity value to enable sprinkle
+        break;
+
+    default:
+    {
+        // Sprinkle is required
+        sprinkle.requestStartSprinkle();
+        isSprinkleRunning = true;
+        break;
+    }
+    }
+
+    if (isSprinkleRunning)
+    {
+        sleepToNextMeasure(sprinkleDuration);
+        sprinkle.requestEndSprinkle();
+        return;
+    }
+
+    if (sfm.isDataSent() || sfm.isDataSentAndCallbackHandled())
+    {
+        sleepToNextMeasure(-4);
         sfm.resetState();
     }
 }

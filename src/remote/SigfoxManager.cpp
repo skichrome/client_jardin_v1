@@ -190,6 +190,8 @@ void SigfoxManager::saveCallbackToFile(CallbackData *callbackData)
         callbackFile.println(callbackData->sprinkleStartHour);
         callbackFile.println(callbackData->sprinkleStartMinute);
         callbackFile.println(callbackData->sprinleDuration);
+        callbackFile.println(callbackData->minimalSprinkleHumidity);
+        callbackFile.println(sensorsData.soilHumValue);
 
         callbackFile.close();
     }

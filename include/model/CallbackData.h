@@ -12,6 +12,7 @@ struct __attribute__((packed)) CallbackData
     uint8_t sprinkleStartHour;
     uint8_t sprinkleStartMinute;
     uint8_t sprinleDuration;
+    uint8_t minimalSprinkleHumidity;
 };
 
 #endif

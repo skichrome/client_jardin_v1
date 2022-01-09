@@ -50,18 +50,18 @@ boolean SoilSensor::isDataReady()
 }
 
 /**
- * Max dry value : ~895 (in air)
- * Min wet value : ~404 (100% water)
+ * Max dry value : ~863 (in air)
+ * Min wet value : ~395 (100% water)
  */
 void SoilSensor::updateSensorData(SensorsData *mData)
 {
-    if (humidity < 404)
-        humidity = 404;
+    if (humidity < 395)
+        humidity = 395;
 
-    if (humidity > 895)
-        humidity = 895;
+    if (humidity > 863)
+        humidity = 863;
 
-    mData->soilHumValue = map(humidity, 404, 895, 100, 0);
+    mData->soilHumValue = map(humidity, 395, 863, 100, 0);
 }
 
 void SoilSensor::resetState()

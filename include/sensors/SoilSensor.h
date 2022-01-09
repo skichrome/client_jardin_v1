@@ -11,14 +11,18 @@ private:
     Logger *logger;
     pin_size_t pin;
 
-    int humidity = -1;
-
     enum State
     {
         READY,
+        WAIT_COMM,
         MEASURING,
         DONE
     } state;
+
+    unsigned long startWaitCommunicationMs = 0L;
+    unsigned long WAIT_COMMUNICATION_MS = 1000L;
+
+    int humidity = -1;
 
 protected:
     virtual void setup();

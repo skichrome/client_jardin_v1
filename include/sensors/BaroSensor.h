@@ -11,13 +11,18 @@ class BaroSensor : Runnable
 {
 private:
     Logger *logger;
+
     enum State
     {
         NOT_FOUND,
         READY,
+        WAIT_COMM,
         MEASURING,
         DONE
     } state;
+
+    unsigned long startWaitCommunicationMs = 0L;
+    unsigned long WAIT_COMMUNICATION_MS = 1000L;
 
     unsigned long measuringDelayMs = 0L;
     const unsigned long DELAY = 2000L;

@@ -17,7 +17,14 @@ void SoilSensor::loop()
     switch (state)
     {
     case SoilSensor::READY:
-        state = SoilSensor::MEASURING;
+    {
+        startWaitCommunicationMs = millis();
+        state = SoilSensor::WAIT_COMM;
+        break;
+    }
+    case SoilSensor::WAIT_COMM:
+        if (millis() - startWaitCommunicationMs > WAIT_COMMUNICATION_MS)
+            state = SoilSensor::MEASURING;
         break;
     case SoilSensor::MEASURING:
     {
@@ -48,7 +55,13 @@ boolean SoilSensor::isDataReady()
  */
 void SoilSensor::updateSensorData(SensorsData *mData)
 {
-    mData->soilHumValue = map(humidity, 0, 1024, 0, 255);
+    if (humidity < 404)
+        humidity = 404;
+
+    if (humidity > 895)
+        humidity = 895;
+
+    mData->soilHumValue = map(humidity, 404, 895, 100, 0);
 }
 
 void SoilSensor::resetState()

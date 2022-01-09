@@ -26,7 +26,14 @@ void LuxSensor::loop()
         switch (state)
         {
         case LuxSensor::READY:
-            state = LuxSensor::MEASURING;
+        {
+            startWaitCommunicationMs = millis();
+            state = LuxSensor::WAIT_COMM;
+            break;
+        }
+        case LuxSensor::WAIT_COMM:
+            if (millis() - startWaitCommunicationMs > WAIT_COMMUNICATION_MS)
+                state = LuxSensor::MEASURING;
             break;
         case LuxSensor::MEASURING:
         {

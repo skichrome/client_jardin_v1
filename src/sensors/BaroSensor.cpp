@@ -31,7 +31,14 @@ void BaroSensor::loop()
         switch (state)
         {
         case BaroSensor::READY:
-            state = BaroSensor::MEASURING;
+        {
+            startWaitCommunicationMs = millis();
+            state = BaroSensor::WAIT_COMM;
+            break;
+        }
+        case BaroSensor::WAIT_COMM:
+            if (millis() - startWaitCommunicationMs > WAIT_COMMUNICATION_MS)
+                state = BaroSensor::MEASURING;
             break;
         case BaroSensor::MEASURING:
         {

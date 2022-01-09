@@ -9,12 +9,28 @@
 #include "model/SensorsData.h"
 #include "model/CallbackData.h"
 
+#include "commands/SwitchCommand.h"
+
+// #include "sensors/LuxSensor.h"
+#include "sensors/BaroSensor.h"
+#include "sensors/SoilSensor.h"
+
+#define SENSORS_COMMAND_SW 3
+#define MOISTURE_SENSOR_PIN A0
+
 class SigfoxManager
 {
 private:
     Logger *logger;
-    SensorsData *sensorsData;
     RTCZero *rtc;
+    
+    SensorsData sensorsData;
+
+    SwitchCommand sensorsSwitch = SwitchCommand(logger, SENSORS_COMMAND_SW);
+
+    // LuxSensor luxSensor = LuxSensor(logger);
+    BaroSensor baroSensor = BaroSensor(logger);
+    SoilSensor soilSensor = SoilSensor(logger, MOISTURE_SENSOR_PIN);
 
     const char configFileName[11] = "CONFIG.TXT";
 
@@ -28,10 +44,9 @@ private:
     } state;
 
     void configureSDCard();
+    boolean readSensorValues();
     void handleSigfoxResponseCallback();
     void saveCallbackToFile(CallbackData *callbackData);
-
-    long onConfigurationReceived();
 
 public:
     SigfoxManager(Logger *mLogger, RTCZero *mRtc);
@@ -39,7 +54,6 @@ public:
     void setup();
     void loop();
 
-    boolean sendData(SensorsData *mSensorData);
     boolean isDataSent();
     boolean isDataSentAndCallbackHandled();
     void resetState();

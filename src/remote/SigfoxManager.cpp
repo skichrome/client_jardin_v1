@@ -1,6 +1,6 @@
 #include "remote/SigfoxManager.h"
 
-SigfoxManager::SigfoxManager(Logger *mLogger, RTCZero *mRtc) : logger(NULL), sensorsData(NULL), rtc(NULL)
+SigfoxManager::SigfoxManager(Logger *mLogger, RTCZero *mRtc) : logger(NULL)
 {
     logger = mLogger;
     rtc = mRtc;
@@ -14,6 +14,11 @@ void SigfoxManager::setup()
     delay(100);
     SigFox.debug();
     SigFox.end();
+
+    sensorsSwitch.setup();
+    // luxSensor.setup();
+    baroSensor.setup();
+    soilSensor.setup();
 
     configureSDCard();
 }
@@ -35,39 +40,47 @@ void SigfoxManager::setup()
  */
 void SigfoxManager::loop()
 {
+    sensorsSwitch.loop();
+    // luxSensor.loop();
+    baroSensor.loop();
+    soilSensor.loop();
+
     switch (state)
     {
+    case SigfoxManager::WAITING_DATA:
+    {
+        if (readSensorValues())
+        {
+            state = SigfoxManager::SENDING;
+        }
+        break;
+    }
     case SigfoxManager::SENDING:
-        logger->e("(alt: " + String(sensorsData->altValue) + ")-(baro: " + String(sensorsData->baroValue) + ")-(timestamp: " + String(sensorsData->currentTimestamp) + ")-(lux: " + String(sensorsData->luxValue) + ")-(soilHum: " + String(sensorsData->soilHumValue) + ")-(tmp: " + String(sensorsData->temperatureValue) + ")");
+    {
+        logger->e(F("SigfoxManager has received data to send"));
+        logger->e("(alt: " + String(sensorsData.altValue) + ")-(baro: " + String(sensorsData.baroValue) + ")-(timestamp: " + String(sensorsData.currentTimestamp) + ")-(lux: " + String(sensorsData.luxValue) + ")-(soilHum: " + String(sensorsData.soilHumValue) + ")-(tmp: " + String(sensorsData.temperatureValue) + ")");
         SigFox.begin();
         SigFox.beginPacket();
-        SigFox.write((uint8_t *)sensorsData, sizeof(*sensorsData));
+        SigFox.write((uint8_t *)&sensorsData, sizeof(&sensorsData));
         SigFox.endPacket(true);
         state = SigfoxManager::WAITING_CALLBACK;
         break;
-
+    }
     case SigfoxManager::WAITING_CALLBACK:
+    {
         handleSigfoxResponseCallback();
         break;
-
-    default:
+    }
+    case SigfoxManager::CALLBACK_ERROR:
+    case SigfoxManager::DONE:
+    {
+        sensorsData = {};
+        sensorsSwitch.switchState(false);
+        state = SigfoxManager::WAITING_DATA;
         break;
     }
-}
-
-boolean SigfoxManager::sendData(SensorsData *mSensorData)
-{
-    if (state == SigfoxManager::WAITING_DATA)
-    {
-        logger->e(F("SigfoxManager has received data to send"));
-        sensorsData = mSensorData;
-        state = SigfoxManager::SENDING;
-        return true;
-    }
-    else
-    {
-        logger->e(F("SigfoxManager already sending data, ignoring"));
-        return false;
+    default:
+        break;
     }
 }
 
@@ -83,6 +96,12 @@ boolean SigfoxManager::isDataSentAndCallbackHandled()
 
 void SigfoxManager::resetState()
 {
+    // luxSensor.resetState();
+    baroSensor.resetState();
+    soilSensor.resetState();
+
+    sensorsData = {};
+    sensorsSwitch.switchState(false);
     state = SigfoxManager::WAITING_DATA;
 }
 
@@ -92,6 +111,34 @@ void SigfoxManager::configureSDCard()
         logger->e(F("Can't configure SD Card lib in SigFoxManager"));
     else
         logger->e(F("Successfully configured SigfoxManager"));
+}
+
+boolean SigfoxManager::readSensorValues()
+{
+    // To execute next part of code sensor sw must be on (case all sensors data OK but before sensors switch turn off)
+    if (sensorsSwitch.isSwitchedOff())
+    {
+        logger->e(F("Warn, bad sensor switch state"));
+        sensorsSwitch.switchState(true);
+    }
+
+    if (/*luxSensor.isDataReady() && */ baroSensor.isDataReady() && soilSensor.isDataReady())
+    {
+        // Sensors are connected and have collected data, get values
+        // luxSensor.updateSensorData(&sensorsData);
+        sensorsData.luxValue = 0;
+        baroSensor.updateSensorsData(&sensorsData);
+        soilSensor.updateSensorData(&sensorsData);
+
+        // Todo : Set timestamp will trigger SigFox upload
+        sensorsData.currentTimestamp = rtc->getEpoch();
+
+        // Measures are done, reset sensor switch
+        sensorsSwitch.switchState(false);
+        return true;
+    }
+
+    return false;
 }
 
 void SigfoxManager::handleSigfoxResponseCallback()

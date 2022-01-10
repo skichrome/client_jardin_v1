@@ -93,9 +93,9 @@ void BaroSensor::updateSensorsData(SensorsData *mData)
 {
     if (state == BaroSensor::DONE)
     {
-        mData->altValue =   abs(altm * 100) - 38200; //map(altm * 100, 38200, 63700, 0, 255);
-        mData->baroValue = abs(pascals * 100) - 88600; //map(pascals * 100, 8850000, 11410000, 0, 255);
-        mData->temperatureValue = abs(temperature * 100); //map(temperature * 100, -5000, 5000, 0, 255);
+        mData->baroValue = abs(pascals) - 88600;
+        mData->altValue = abs(altm * 100) - 38200;
+        mData->temperatureValue = abs(temperature * 100);
     }
 }
 

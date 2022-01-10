@@ -7,16 +7,8 @@ LuxSensor::LuxSensor(Logger *mLogger) : logger(NULL)
 
 void LuxSensor::setup()
 {
-    if (!sensor.begin())
-    {
-        logger->e(F("Can't start lux sensor communication"));
-        state = LuxSensor::NOT_FOUND;
-
-        // Set to error values
-        lux = -2.0;
-    }
-    else
-        configureLuxSensor();
+    configureLuxSensor();
+    measuringDelayMs = millis();
 }
 
 void LuxSensor::loop()
@@ -25,6 +17,9 @@ void LuxSensor::loop()
     {
         switch (state)
         {
+        case LuxSensor::NOT_FOUND:
+            configureLuxSensor();
+            break;
         case LuxSensor::READY:
         {
             startWaitCommunicationMs = millis();
@@ -39,20 +34,13 @@ void LuxSensor::loop()
         {
             lux = sensor.readLux();
 
-            String msg = "Raw Lux: " + String(lux);
-            logger->e(msg);
+            logger->e("Raw Lux: " + String(lux));
 
             if (lux > -1.0)
                 state = LuxSensor::DONE;
             break;
         }
         case LuxSensor::DONE:
-            break;
-        default:
-            if (!sensor.begin())
-                logger->e(F("Can't start lux sensor communication"));
-            else
-                configureLuxSensor();
             break;
         }
 
@@ -62,13 +50,24 @@ void LuxSensor::loop()
 
 void LuxSensor::configureLuxSensor()
 {
-    sensor.setGain(VEML7700_GAIN_1);
-    sensor.setIntegrationTime(VEML7700_IT_800MS);
-    sensor.interruptEnable(false);
+    if (!sensor.begin())
+    {
+        logger->e(F("Can't start lux sensor communication"));
 
-    measuringDelayMs = millis();
-    state = LuxSensor::READY;
-    logger->e(F("Successfully configured lux sensor"));
+        // Set to error values
+        lux = -2.0;
+
+        state = LuxSensor::NOT_FOUND;
+    }
+    else
+    {
+        sensor.setGain(VEML7700_GAIN_1);
+        sensor.setIntegrationTime(VEML7700_IT_800MS);
+        sensor.interruptEnable(false);
+
+        state = LuxSensor::READY;
+        logger->e(F("Successfully configured lux sensor"));
+    }
 }
 
 boolean LuxSensor::isDataReady()

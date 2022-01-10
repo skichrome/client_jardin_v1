@@ -85,7 +85,7 @@ boolean BaroSensor::isDataReady()
  * Sensors data units : 
  * - Altitude : Meters => range from 382m to 637 and mutliply by 100 to get max precision).
  * - Pressure : Pascals => ex: 96425.00 (float) : parse to int (multiply by 100 to avoid loosing float precision if necessary)
- *     and map from min 885 hPa to max 1141 hPa to 0->255 scale
+ *     and map from min 886 hPa to max 1141 hPa to 0->255 scale
  *     To get back to hPa just add value with min 885hPa
  * - Temperature : degrees => range from -50 to + 50 °C
  */
@@ -93,9 +93,9 @@ void BaroSensor::updateSensorsData(SensorsData *mData)
 {
     if (state == BaroSensor::DONE)
     {
-        mData->altValue = map(altm * 100, 38200, 63700, 0, 255);
-        mData->baroValue = map(pascals * 100, 8850000, 11410000, 0, 255);
-        mData->temperatureValue = map(temperature * 100, -5000, 5000, 0, 255);
+        mData->altValue =   abs(altm * 100) - 38200; //map(altm * 100, 38200, 63700, 0, 255);
+        mData->baroValue = abs(pascals * 100) - 88600; //map(pascals * 100, 8850000, 11410000, 0, 255);
+        mData->temperatureValue = abs(temperature * 100); //map(temperature * 100, -5000, 5000, 0, 255);
     }
 }
 

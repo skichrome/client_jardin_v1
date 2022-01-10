@@ -42,7 +42,7 @@ void LuxSensor::loop()
             String msg = "Raw Lux: " + String(lux);
             logger->e(msg);
 
-            if (lux > -1.0 && lux < 65536.0)
+            if (lux > -1.0)
                 state = LuxSensor::DONE;
             break;
         }
@@ -78,7 +78,7 @@ boolean LuxSensor::isDataReady()
 
 void LuxSensor::updateSensorData(SensorsData *mData)
 {
-    mData->luxValue = lux;
+    mData->luxValue = (int)lux;
 }
 
 void LuxSensor::resetState()

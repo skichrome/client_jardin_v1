@@ -34,7 +34,7 @@ void SigfoxManager::setup()
  * - Temperature : 78 => 120
  *
  * Sigfox Payload config (in callback editor : device type -> name -> callbacks -> edit)
- * local_timestamp::uint:32:little-endian lux::uint:16:little-endian altitude::uint:8:little-endian baro::uint:8:little-endian soil_moisture::uint:8:little-endian temperature::uint:8:little-endian
+ * soil_moisture::uint:8:little-endian baro::uint:16:little-endian alt::uint:16:little-endian temp::uint:16:little-endian lux::uint:16:little-endian
  *
  * /!\ Numbers are written in little endian format /!\
  */
@@ -58,10 +58,10 @@ void SigfoxManager::loop()
     case SigfoxManager::SENDING:
     {
         logger->e(F("SigfoxManager has received data to send"));
-        logger->e("(alt: " + String(sensorsData.altValue) + ")-(baro: " + String(sensorsData.baroValue) + ")-(timestamp: " + String(sensorsData.currentTimestamp) + ")-(lux: " + String(sensorsData.luxValue) + ")-(soilHum: " + String(sensorsData.soilHumValue) + ")-(tmp: " + String(sensorsData.temperatureValue) + ")");
+        logger->e("(soilMoisture: " + String(sensorsData.soilHumValue) + ")-(baro: " + String(sensorsData.baroValue) + ")-(alt: " + String(sensorsData.altValue) + ")-(temp: " + String(sensorsData.temperatureValue) + ")-(lux: " + String(sensorsData.luxValue) + ")");
         SigFox.begin();
         SigFox.beginPacket();
-        SigFox.write((uint8_t *)&sensorsData, sizeof(&sensorsData));
+        SigFox.write((uint8_t *)&sensorsData, sizeof(sensorsData));
         SigFox.endPacket(true);
         state = SigfoxManager::WAITING_CALLBACK;
         break;
@@ -129,7 +129,6 @@ boolean SigfoxManager::readSensorValues()
         sensorsData.luxValue = 0;
         baroSensor.updateSensorsData(&sensorsData);
         soilSensor.updateSensorData(&sensorsData);
-        sensorsData.currentTimestamp = rtc->getEpoch();
 
         // Measures are done, reset sensor switch
         sensorsSwitch.switchState(false);

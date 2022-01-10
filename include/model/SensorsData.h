@@ -13,12 +13,11 @@
  */
 struct __attribute__((packed)) SensorsData
 {
-    uint32_t currentTimestamp;
-    uint16_t luxValue;
-    uint8_t altValue;
-    uint8_t baroValue;
     uint8_t soilHumValue;
-    uint8_t temperatureValue;
+    uint16_t baroValue;
+    uint16_t altValue;
+    uint16_t temperatureValue;
+    uint16_t luxValue;
 };
 
 #endif

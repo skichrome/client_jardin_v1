@@ -8,28 +8,23 @@ BaroSensor::BaroSensor(Logger *mLogger) : logger(NULL)
 
 void BaroSensor::setup()
 {
-    if (!sensor.begin())
-    {
-        logger->e(F("Can't start baro sensor communication"));
-        state = BaroSensor::NOT_FOUND;
-
-        // Set to error values
-        pascals = -2.0;
-        altm = -2.0;
-        temperature = -200.0;
-    }
-    else
-        configureBaroSensor();
-
+    configureBaroSensor();
     measuringDelayMs = millis();
 }
 
 void BaroSensor::loop()
 {
+    logger->e(F("TEST"));
+
     if (millis() - measuringDelayMs > DELAY)
     {
         switch (state)
         {
+        case BaroSensor::NOT_FOUND:
+        {
+            configureBaroSensor();
+            break;
+        }
         case BaroSensor::READY:
         {
             startWaitCommunicationMs = millis();
@@ -43,23 +38,17 @@ void BaroSensor::loop()
         case BaroSensor::MEASURING:
         {
             pascals = sensor.getPressure();
+            logger->e("Raw Pressure: " + String(pascals));
             altm = sensor.getAltitude();
+            logger->e("Raw computed altitude: " + String(altm));
             temperature = sensor.getTemperature();
+            logger->e("Raw temperature: " + String(temperature));
 
-            String msg = "Raw Pressure: " + String(pascals) + " raw computed altitude: " + String(altm) + " raw temperature: " + String(temperature);
-            logger->e(msg);
-
-            if (pascals > -1.0 && altm > -1.0 && temperature > -100.0 && pascals < 114100.0 && altm < 637.0 && temperature < 50.0)
+            if (pascals > -1.0 && altm > -1.0 && temperature > -100.0)
                 state = BaroSensor::DONE;
             break;
         }
         case BaroSensor::DONE:
-            break;
-        default:
-            if (!sensor.begin())
-                logger->e(F("Can't start baro sensor communication"));
-            else
-                configureBaroSensor();
             break;
         }
 
@@ -69,8 +58,22 @@ void BaroSensor::loop()
 
 void BaroSensor::configureBaroSensor()
 {
-    state = BaroSensor::READY;
-    logger->e(F("Successfully configured baro sensor"));
+    if (!sensor.begin())
+    {
+        logger->e(F("Can't start baro sensor communication"));
+
+        // Set to error values
+        pascals = -2.0;
+        altm = -2.0;
+        temperature = -200.0;
+
+        state = BaroSensor::NOT_FOUND;
+    }
+    else
+    {
+        state = BaroSensor::READY;
+        logger->e(F("Successfully configured baro sensor"));
+    }
 }
 
 boolean BaroSensor::isDataReady()

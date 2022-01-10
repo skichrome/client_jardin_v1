@@ -23,7 +23,6 @@ Logger logger = Logger(&rtc, &led);
 SigfoxManager sfm = SigfoxManager(&logger, &rtc);
 SprinkleCommand sprinkle = SprinkleCommand(&logger, &rtc);
 
-unsigned long startTimeMs = 0L;
 boolean sending = false;
 
 // =================================
@@ -41,7 +40,7 @@ void sleepToNextMeasure(int overridedDuration)
     while (millis() - delayTime < delayMs)
     {
         delay(30000);
-        logger.e("Sleeping in progress (" + String(++count) + "/" + String(durationMinutes) + ")");
+        logger.e("Sleeping in progress (" + String(++count) + "/" + String(durationMinutes * 2) + ")");
     }
 
     if (overridedDuration > 0)
@@ -49,7 +48,7 @@ void sleepToNextMeasure(int overridedDuration)
         while (millis() - overridedDuration < delayMs)
         {
             delay(30000);
-            logger.e("Sleeping in progress (" + String(++count) + "/" + String((int)overridedDuration / 60 / 1000) + ")");
+            logger.e("Sleeping in progress (" + String(++count) + "/" + String((int)overridedDuration / 60 / 1000 * 2) + ")");
         }
     }
     else
@@ -57,7 +56,7 @@ void sleepToNextMeasure(int overridedDuration)
         while (millis() - delayTime < delayMs)
         {
             delay(30000);
-            logger.e("Sleeping in progress (" + String(++count) + "/" + String(durationMinutes) + ")");
+            logger.e("Sleeping in progress (" + String(++count) + "/" + String(durationMinutes * 2) + ")");
         }
     }
 #else
@@ -85,8 +84,6 @@ void setup()
     rtc.begin();
     if (rtc.getEpoch() < 1609459200)
         rtc.setEpoch(1609459200); // 01/01/2021 00h00 is the reference time
-
-    startTimeMs = millis();
 
     led.setup();
     logger.setup();
@@ -135,6 +132,7 @@ void loop()
 
     if (sfm.isDataSent() || sfm.isDataSentAndCallbackHandled())
     {
+        logger.e(F("OK, going to sleep"));
         sleepToNextMeasure(-4);
         sfm.resetState();
     }

@@ -79,7 +79,5 @@ void Logger::e(String msg)
     }
     else
         led->blinkErrorCode(3);
-
-    SD.end();
 #endif
 }

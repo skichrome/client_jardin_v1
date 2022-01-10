@@ -128,8 +128,6 @@ void SprinkleCommand::loadConfig()
         logger->e(F("Can't open config file, cancelling sprinkle"));
         return;
     }
-
-    SD.end();
 }
 
 int SprinkleCommand::checkIfSprinkleIsRequired()
@@ -170,18 +168,8 @@ int SprinkleCommand::checkIfSprinkleIsRequired()
     if (lastDay.toInt() != rtc->getDay() && rtc->getHours() == startTimeHour && abs(minutesDelta) < duration * 2)
     {
         logger->e(F("Sprinkle not done today"));
-        SD.end();
         return requestedDurationMillis;
     }
-    else
-    {
-        logger->e(F("Sprinkle already done today or not time to sprinkle"));
-        logger->e("Last sprinkle day: " + lastDay + " | current day: " + String(rtc->getDay()));
-        logger->e("Requested sprinkle hour: " + String(startTimeHour) + " | current hour: " + String(rtc->getHours()));
-        logger->e("Requested sprinkle min: " + String(startTimeMin) + " | current min: " + String(minutesDelta));
-    }
-
-    SD.end();
     return -1;
 }
 
@@ -204,13 +192,20 @@ void SprinkleCommand::endSprinkle()
     if (sprinkleHistory)
     {
         sprinkleHistory.print(rtc->getDay());
+        sprinkleHistory.print("/");
+        sprinkleHistory.print(rtc->getMonth());
+        sprinkleHistory.print("/");
+        sprinkleHistory.print(rtc->getYear());
+        sprinkleHistory.print("[");
+        sprinkleHistory.print(rtc->getHours());
+        sprinkleHistory.print(":");
+        sprinkleHistory.print(rtc->getMinutes());
+        sprinkleHistory.print("]");
         sprinkleHistory.close();
         logger->e(F("Wrote current day to sprinkle history"));
     }
     else
         logger->e(F("Could not open last sprinkle file"));
-
-    SD.end();
 }
 
 void SprinkleCommand::requestStartSprinkle()

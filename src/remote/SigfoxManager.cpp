@@ -129,8 +129,6 @@ boolean SigfoxManager::readSensorValues()
         sensorsData.luxValue = 0;
         baroSensor.updateSensorsData(&sensorsData);
         soilSensor.updateSensorData(&sensorsData);
-
-        // Todo : Set timestamp will trigger SigFox upload
         sensorsData.currentTimestamp = rtc->getEpoch();
 
         // Measures are done, reset sensor switch
@@ -197,6 +195,4 @@ void SigfoxManager::saveCallbackToFile(CallbackData *callbackData)
     }
     else
         logger->e(F("can't open CONFIG.TXT to write callback data"));
-
-    SD.end();
 }

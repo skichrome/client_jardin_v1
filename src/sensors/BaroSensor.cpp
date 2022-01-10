@@ -14,8 +14,6 @@ void BaroSensor::setup()
 
 void BaroSensor::loop()
 {
-    logger->e(F("TEST"));
-
     if (millis() - measuringDelayMs > DELAY)
     {
         switch (state)

@@ -28,7 +28,12 @@ void LuxSensor::loop()
         }
         case LuxSensor::WAIT_COMM:
             if (millis() - startWaitCommunicationMs > WAIT_COMMUNICATION_MS)
+            {
+                if (!sensor.enabled())
+                    sensor.enable(true);
+
                 state = LuxSensor::MEASURING;
+            }
             break;
         case LuxSensor::MEASURING:
         {
@@ -82,6 +87,8 @@ void LuxSensor::updateSensorData(SensorsData *mData)
 
 void LuxSensor::resetState()
 {
+    if (sensor.enabled())
+        sensor.enable(false);
     lux = -1.0;
     state = NOT_FOUND;
 }

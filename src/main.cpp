@@ -70,7 +70,7 @@ void sleepToNextMeasure(int overridedDuration)
         LowPower.deepSleep(delayMs);
     }
 #endif
-    logger.e("Wake up");
+    logger.e(F("-------------------------------------------------------------------------------"));
 }
 
 // =================================

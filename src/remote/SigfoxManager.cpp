@@ -16,7 +16,7 @@ void SigfoxManager::setup()
     SigFox.end();
 
     sensorsSwitch.setup();
-    // luxSensor.setup();
+    luxSensor.setup();
     baroSensor.setup();
     soilSensor.setup();
 
@@ -41,7 +41,7 @@ void SigfoxManager::setup()
 void SigfoxManager::loop()
 {
     sensorsSwitch.loop();
-    // luxSensor.loop();
+    luxSensor.loop();
     baroSensor.loop();
     soilSensor.loop();
 
@@ -96,7 +96,7 @@ boolean SigfoxManager::isDataSentAndCallbackHandled()
 
 void SigfoxManager::resetState()
 {
-    // luxSensor.resetState();
+    luxSensor.resetState();
     baroSensor.resetState();
     soilSensor.resetState();
 
@@ -118,15 +118,14 @@ boolean SigfoxManager::readSensorValues()
     // To execute next part of code sensor sw must be on (case all sensors data OK but before sensors switch turn off)
     if (sensorsSwitch.isSwitchedOff())
     {
-        logger->e(F("Warn, bad sensor switch state"));
+        logger->e(F("Turning on sensors switch"));
         sensorsSwitch.switchState(true);
     }
 
-    if (/*luxSensor.isDataReady() && */ baroSensor.isDataReady() && soilSensor.isDataReady())
+    if (luxSensor.isDataReady() && baroSensor.isDataReady() && soilSensor.isDataReady())
     {
         // Sensors are connected and have collected data, get values
-        // luxSensor.updateSensorData(&sensorsData);
-        sensorsData.luxValue = 0;
+        luxSensor.updateSensorData(&sensorsData);
         baroSensor.updateSensorsData(&sensorsData);
         soilSensor.updateSensorData(&sensorsData);
 

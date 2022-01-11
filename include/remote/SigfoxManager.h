@@ -11,7 +11,7 @@
 
 #include "commands/SwitchCommand.h"
 
-// #include "sensors/LuxSensor.h"
+#include "sensors/LuxSensor.h"
 #include "sensors/BaroSensor.h"
 #include "sensors/SoilSensor.h"
 
@@ -28,7 +28,7 @@ private:
 
     SwitchCommand sensorsSwitch = SwitchCommand(logger, SENSORS_COMMAND_SW);
 
-    // LuxSensor luxSensor = LuxSensor(logger);
+    LuxSensor luxSensor = LuxSensor(logger);
     BaroSensor baroSensor = BaroSensor(logger);
     SoilSensor soilSensor = SoilSensor(logger, MOISTURE_SENSOR_PIN);
 

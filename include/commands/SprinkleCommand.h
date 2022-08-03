@@ -54,6 +54,9 @@ public:
 
     void requestStartSprinkle();
     void requestEndSprinkle();
+
+    bool isSprinkleRunning();
+    bool isSprinkleOff();
 };
 
 #endif

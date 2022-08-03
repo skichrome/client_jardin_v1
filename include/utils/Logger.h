@@ -4,9 +4,10 @@
 #include <SD.h>
 #include <RTCZero.h>
 
+#include "config.h"
+
 #include "utils/DebugLed.h"
 
-#define DEBUG
 #define LOG_BUFFER_SIZE 10
 
 class Logger

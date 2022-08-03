@@ -3,13 +3,13 @@
 #include <RTCZero.h>
 #include <ArduinoLowPower.h>
 
+#include "config.h"
+
 #include "utils/Logger.h"
 #include "utils/DebugLed.h"
 
 #include "commands/SprinkleCommand.h"
 #include "remote/SigfoxManager.h"
-
-#define DEBUG
 
 // =================================
 //              Fields
@@ -39,16 +39,16 @@ void sleepToNextMeasure(int overridedDuration)
     unsigned int count = 0;
     while (millis() - delayTime < delayMs)
     {
-        delay(30000);
         logger.e("Sleeping in progress (" + String(++count) + "/" + String(durationMinutes * 2) + ")");
+        delay(30000);
     }
 
     if (overridedDuration > 0)
     {
         while (millis() - overridedDuration < delayMs)
         {
-            delay(30000);
             logger.e("Sleeping in progress (" + String(++count) + "/" + String((int)overridedDuration / 60 / 1000 * 2) + ")");
+            delay(30000);
         }
     }
     else
@@ -66,7 +66,7 @@ void sleepToNextMeasure(int overridedDuration)
     }
     else
     {
-        int delayMs = 1000 * 60 * 15;
+        int delayMs = SLEEP_DELAY;
         LowPower.deepSleep(delayMs);
     }
 #endif
@@ -104,7 +104,6 @@ void loop()
     sfm.loop();
     sprinkle.loop();
 
-    bool isSprinkleRunning = false;
     int sprinkleDuration = sprinkle.checkIfSprinkleIsRequired();
 
     switch (sprinkleDuration)
@@ -112,25 +111,26 @@ void loop()
     case -1: // Sprinkle isn't required
     case -2: // Not in idle state
     case -3: // Last humidity value is under minimal humidity value to enable sprinkle
+    // logger.e("Sprinkle aborted" + String(sprinkleDuration));
         break;
 
     default:
     {
         // Sprinkle is required
         sprinkle.requestStartSprinkle();
-        isSprinkleRunning = true;
-        break;
+        return;
     }
     }
 
-    if (isSprinkleRunning)
+    if (sprinkle.isSprinkleRunning())
     {
         sleepToNextMeasure(sprinkleDuration);
+        logger.e("Sleep when sprinkle run");
         sprinkle.requestEndSprinkle();
         return;
     }
 
-    if (sfm.isDataSent() || sfm.isDataSentAndCallbackHandled())
+    if (sfm.isDataSent() && sprinkle.isSprinkleOff())
     {
         logger.e(F("OK, going to sleep"));
         sleepToNextMeasure(-4);

@@ -29,6 +29,9 @@ public:
     void loop();
 
     void switchRelay();
+
+    bool isOn();
+    bool isOff();
 };
 
 #endif

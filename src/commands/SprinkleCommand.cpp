@@ -1,11 +1,11 @@
-
+#include "config.h"
 #include "commands/SprinkleCommand.h"
 
 SprinkleCommand::SprinkleCommand(Logger *mLogger, RTCZero *mRtc) : logger(NULL), rtc(NULL)
 {
     logger = mLogger;
     rtc = mRtc;
-    state = SprinkleCommand::IDLE;
+    state = SprinkleCommand::NO_CONF;
 }
 
 void SprinkleCommand::setup()
@@ -52,7 +52,7 @@ void SprinkleCommand::loop()
 void SprinkleCommand::configureSDCard()
 {
     if (!SD.begin(4))
-        logger->e(F("Can't configure SD Card lib in SprinkleCommand"));
+        logger->e(F("[SprinkleConfig] Can't configure SD Card lib in SprinkleCommand"));
 }
 
 void SprinkleCommand::loadConfig()
@@ -60,7 +60,7 @@ void SprinkleCommand::loadConfig()
     if (!SD.exists(configFileName))
     {
         state = SprinkleCommand::NO_CONF;
-        logger->e(F("No sprinkle configuration file found, sprinkle disabled"));
+        logger->e(F("[SprinkleConfig] No sprinkle configuration file found, sprinkle disabled"));
     }
 
     File configFile = SD.open(configFileName, FILE_READ);
@@ -76,9 +76,6 @@ void SprinkleCommand::loadConfig()
 
             if (c == '\n')
             {
-                //Serial.print(" Converted to line : ");
-                //Serial.println(line);
-
                 line = "";
                 lineIdx++;
 
@@ -87,8 +84,6 @@ void SprinkleCommand::loadConfig()
 
             if (c >= 48 && c <= 57)
             {
-                //Serial.print(" Char : ");
-                //Serial.print(c - 48);
                 line += char(c);
 
                 switch (lineIdx)
@@ -113,19 +108,19 @@ void SprinkleCommand::loadConfig()
                     break;
 
                 default:
-                    logger->e(F("Dropped line "));
+                    logger->e(F("[SprinkleConfig] Dropped line "));
                     logger->e(line);
                     break;
                 }
             }
             else
-                logger->e(F("Bad char value stored"));
+                logger->e("[SprinkleConfig] Out of range char value : " + String(c));
         }
         configFile.close();
     }
     else
     {
-        logger->e(F("Can't open config file, cancelling sprinkle"));
+        logger->e(F("[SprinkleConfig] Can't open config file, cancelling sprinkle"));
         return;
     }
 }
@@ -160,14 +155,14 @@ int SprinkleCommand::checkIfSprinkleIsRequired()
         lastSprinkleFile.close();
     }
     else
-        logger->e(F("Last sprinkle file not available"));
+        logger->e(F("[SprinkleConfig] Last sprinkle file not available"));
 
     if (lastDay == "")
         lastDay = "-1";
 
-    if (lastDay.toInt() != rtc->getDay() && rtc->getHours() == startTimeHour && abs(minutesDelta) < duration * 2)
+    if (lastDay.toInt() != rtc->getDay() && rtc->getHours() == startTimeHour && abs(minutesDelta) < SLEEP_DELAY * 2)
     {
-        logger->e(F("Sprinkle not done today"));
+        logger->e(F("[SprinkleConfig] Sprinkle not done today"));
         return requestedDurationMillis;
     }
     return -1;
@@ -202,10 +197,10 @@ void SprinkleCommand::endSprinkle()
         sprinkleHistory.print(rtc->getMinutes());
         sprinkleHistory.print("]");
         sprinkleHistory.close();
-        logger->e(F("Wrote current day to sprinkle history"));
+        logger->e(F("[SprinkleConfig] Wrote current day to sprinkle history"));
     }
     else
-        logger->e(F("Could not open last sprinkle file"));
+        logger->e(F("[SprinkleConfig] Could not open sprinkle history file"));
 }
 
 void SprinkleCommand::requestStartSprinkle()
@@ -216,4 +211,14 @@ void SprinkleCommand::requestStartSprinkle()
 void SprinkleCommand::requestEndSprinkle()
 {
     state = SprinkleCommand::SPRINKLE_END;
+}
+
+bool SprinkleCommand::isSprinkleRunning()
+{
+    return state == SprinkleCommand::SPRINKLE_RUN && relay.isOn();
+}
+
+bool SprinkleCommand::isSprinkleOff()
+{
+    return (state == SprinkleCommand::SPRINKLE_DONE || state == SprinkleCommand::IDLE || state == SprinkleCommand::NO_CONF) && relay.isOff();
 }

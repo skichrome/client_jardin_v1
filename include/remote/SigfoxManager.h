@@ -11,7 +11,7 @@
 
 #include "commands/SwitchCommand.h"
 
-#include "sensors/LuxSensor.h"
+// #include "sensors/LuxSensor.h"
 #include "sensors/BaroSensor.h"
 #include "sensors/SoilSensor.h"
 
@@ -23,12 +23,12 @@ class SigfoxManager
 private:
     Logger *logger;
     RTCZero *rtc;
-    
+
     SensorsData sensorsData;
 
     SwitchCommand sensorsSwitch = SwitchCommand(logger, SENSORS_COMMAND_SW);
 
-    LuxSensor luxSensor = LuxSensor(logger);
+    // LuxSensor luxSensor = LuxSensor(logger);
     BaroSensor baroSensor = BaroSensor(logger);
     SoilSensor soilSensor = SoilSensor(logger, MOISTURE_SENSOR_PIN);
 
@@ -36,6 +36,7 @@ private:
 
     enum State
     {
+        IDLE,
         WAITING_DATA,
         SENDING,
         WAITING_CALLBACK,
@@ -55,7 +56,6 @@ public:
     void loop();
 
     boolean isDataSent();
-    boolean isDataSentAndCallbackHandled();
     void resetState();
 };
 

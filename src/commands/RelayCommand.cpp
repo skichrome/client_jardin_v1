@@ -74,4 +74,15 @@ void RelayCommand::loop()
 void RelayCommand::switchRelay()
 {
     isSwitchingRequested = true;
+    logger->e("[RelayCommand] Switch request");
+}
+
+bool RelayCommand::isOn()
+{
+    return currentRelayState == RelayCommand::IDLE_RESET;
+}
+
+bool RelayCommand::isOff()
+{
+    return currentRelayState == RelayCommand::IDLE_SET;
 }

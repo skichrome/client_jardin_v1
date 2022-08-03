@@ -16,7 +16,7 @@ void SigfoxManager::setup()
     SigFox.end();
 
     sensorsSwitch.setup();
-    luxSensor.setup();
+    // luxSensor.setup();
     baroSensor.setup();
     soilSensor.setup();
 
@@ -41,7 +41,7 @@ void SigfoxManager::setup()
 void SigfoxManager::loop()
 {
     sensorsSwitch.loop();
-    luxSensor.loop();
+    // luxSensor.loop();
     baroSensor.loop();
     soilSensor.loop();
 
@@ -76,7 +76,7 @@ void SigfoxManager::loop()
     {
         sensorsData = {};
         sensorsSwitch.switchState(false);
-        state = SigfoxManager::WAITING_DATA;
+        state = SigfoxManager::IDLE;
         break;
     }
     default:
@@ -86,17 +86,12 @@ void SigfoxManager::loop()
 
 boolean SigfoxManager::isDataSent()
 {
-    return state == SigfoxManager::DONE || state == SigfoxManager::CALLBACK_ERROR;
-}
-
-boolean SigfoxManager::isDataSentAndCallbackHandled()
-{
-    return state == SigfoxManager::DONE;
+    return state == SigfoxManager::IDLE;
 }
 
 void SigfoxManager::resetState()
 {
-    luxSensor.resetState();
+    // luxSensor.resetState();
     baroSensor.resetState();
     soilSensor.resetState();
 
@@ -122,10 +117,10 @@ boolean SigfoxManager::readSensorValues()
         sensorsSwitch.switchState(true);
     }
 
-    if (luxSensor.isDataReady() && baroSensor.isDataReady() && soilSensor.isDataReady())
+    if (/*luxSensor.isDataReady() && */ baroSensor.isDataReady() && soilSensor.isDataReady())
     {
         // Sensors are connected and have collected data, get values
-        luxSensor.updateSensorData(&sensorsData);
+        // luxSensor.updateSensorData(&sensorsData);
         baroSensor.updateSensorsData(&sensorsData);
         soilSensor.updateSensorData(&sensorsData);
 

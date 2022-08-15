@@ -66,8 +66,7 @@ void sleepToNextMeasure(int overridedDuration)
     }
     else
     {
-        int delayMs = SLEEP_DELAY;
-        LowPower.deepSleep(delayMs);
+        LowPower.deepSleep(SLEEP_DELAY);
     }
 #endif
     logger.e(F("-------------------------------------------------------------------------------"));
@@ -111,7 +110,7 @@ void loop()
     case -1: // Sprinkle isn't required
     case -2: // Not in idle state
     case -3: // Last humidity value is under minimal humidity value to enable sprinkle
-    // logger.e("Sprinkle aborted" + String(sprinkleDuration));
+             // logger.e("Sprinkle aborted" + String(sprinkleDuration));
         break;
 
     default:
@@ -135,5 +134,6 @@ void loop()
         logger.e(F("OK, going to sleep"));
         sleepToNextMeasure(-4);
         sfm.resetState();
+        sprinkle.resetSprinkleState();
     }
 }

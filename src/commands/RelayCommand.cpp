@@ -13,7 +13,10 @@ void RelayCommand::setup()
 {
     pinMode(pinOn, OUTPUT);
     pinMode(pinOff, OUTPUT);
-
+    
+    // Reset relay at setup to avoid bad relay state.
+    digitalWrite(pinOff, HIGH);
+    delay(DELAY_MS);
     digitalWrite(pinOn, LOW);
     digitalWrite(pinOff, LOW);
 

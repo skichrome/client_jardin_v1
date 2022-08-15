@@ -57,6 +57,7 @@ public:
 
     bool isSprinkleRunning();
     bool isSprinkleOff();
+    void resetSprinkleState();
 };
 
 #endif

@@ -222,3 +222,9 @@ bool SprinkleCommand::isSprinkleOff()
 {
     return (state == SprinkleCommand::SPRINKLE_DONE || state == SprinkleCommand::IDLE || state == SprinkleCommand::NO_CONF) && relay.isOff();
 }
+
+void SprinkleCommand::resetSprinkleState()
+{
+    if (state == State::SPRINKLE_DONE)
+        state = State::NO_CONF;
+}

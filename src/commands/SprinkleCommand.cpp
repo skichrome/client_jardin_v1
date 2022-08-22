@@ -195,7 +195,7 @@ void SprinkleCommand::endSprinkle()
         sprinkleHistory.print(rtc->getHours());
         sprinkleHistory.print(":");
         sprinkleHistory.print(rtc->getMinutes());
-        sprinkleHistory.print("]");
+        sprinkleHistory.println("]");
         sprinkleHistory.close();
         logger->e(F("[SprinkleConfig] Wrote current day to sprinkle history"));
     }
